@@ -144,12 +144,11 @@ class TimeRunActivity : AppCompatActivity() {
                 Constants.ACTION_TIME_KEY -> {
                     if (intent.hasExtra(Constants.ACTION_TIME_VALUE)) {
                         val intentExtra = intent.getStringExtra(Constants.ACTION_TIME_VALUE)
-
+                        timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE,0)
                         if (intentExtra == Constants.ACTION_TIMER_STOP) {
-                            stopTimerService()
+                            llSave.performClick()
                         } else {
                             tvTimer.text = intent.getStringExtra(Constants.ACTION_TIME_TEXT_VALUE)
-                            timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE,0)
                         }
                     }
                 }

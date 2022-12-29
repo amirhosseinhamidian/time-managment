@@ -111,6 +111,8 @@ class TimerService : Service() {
     }
 
     private fun stopForegroundService() {
+        val elapsedMillis = SystemClock.elapsedRealtime() - chronometer.base
+        sendBroadcastEvent(Constants.ACTION_TIME_KEY, Constants.ACTION_TIMER_STOP,((elapsedMillis/1000).toInt()))
         isBound = false
         chronometer.stop()
 
@@ -120,7 +122,6 @@ class TimerService : Service() {
         // Stop the foreground service.
         stopSelf()
 
-        sendBroadcastEvent(Constants.ACTION_TIME_KEY, Constants.ACTION_TIMER_STOP,-1)
     }
 
     private fun sendBroadcastEvent(action: String, timeText: String, time: Int) {
