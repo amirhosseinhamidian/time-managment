@@ -1,7 +1,7 @@
 package com.amirhosseinhamidian.my.data.repository
 
 
-import com.example.myapplication.data.db.DB
+import com.amirhosseinhamidian.my.data.db.DB
 import com.amirhosseinhamidian.my.data.mapper.toCategory
 import com.amirhosseinhamidian.my.data.mapper.toCategoryEntity
 import com.amirhosseinhamidian.my.domain.model.Category

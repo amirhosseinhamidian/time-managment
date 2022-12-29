@@ -41,15 +41,15 @@ class AddEditActivity: AppCompatActivity() {
         btSave.setOnClickListener {
             categorySelected = categoryListAdapter.getCategorySelected()
             if (categorySelected.name == "") {
-                Toast.makeText(this,"please select categroy", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"please select category", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (tvTaskTitle.text.isNotEmpty()){
                 viewModel.saveTask(
                     Task(title = edtTaskTitle.text.toString(),
-                    category = categorySelected.name,
-                    elapsedTime = 0
-                )
+                        description = edtTaskDsc.text.toString(),
+                        category = categorySelected.name,
+                        elapsedTime = 0)
                 )
                 finish()
             }else{

@@ -1,6 +1,7 @@
-package com.example.myapplication.data.db
+package com.amirhosseinhamidian.my.data.db
 
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.amirhosseinhamidian.my.data.db.dao.CategoryDao
@@ -9,7 +10,11 @@ import com.amirhosseinhamidian.my.data.db.entity.CategoryEntity
 import com.amirhosseinhamidian.my.data.db.entity.TaskEntity
 
 @Database(entities = [TaskEntity::class , CategoryEntity::class],
-    version = 1)
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ]
+)
 abstract class DB: RoomDatabase() {
     abstract val taskDao: TaskDao
     abstract val categoryDao: CategoryDao

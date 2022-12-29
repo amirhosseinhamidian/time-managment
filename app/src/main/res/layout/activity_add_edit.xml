@@ -68,7 +68,7 @@
             android:textColor="@color/white"
             android:textColorHint="#7C7C7C"
             android:textSize="18sp"
-            android:hint="Any thing to do"/>
+            android:hint="Optional"/>
 
         <TextView
             android:id="@+id/tvTaskCategory"

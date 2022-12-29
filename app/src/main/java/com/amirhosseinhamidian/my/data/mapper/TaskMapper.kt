@@ -8,6 +8,7 @@ fun TaskEntity.toTask(): Task {
     return Task(
         id = id,
         title = title,
+        description = description,
         category = category,
         elapsedTime = elapsedTime
     )
@@ -17,6 +18,7 @@ fun Task.toTaskEntity(): TaskEntity {
     return TaskEntity(
         id = id,
         title = title,
+        description = description,
         category = category,
         elapsedTime = elapsedTime
     )

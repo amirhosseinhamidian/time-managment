@@ -2,7 +2,7 @@ package com.amirhosseinhamidian.my.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.myapplication.data.db.DB
+import com.amirhosseinhamidian.my.data.db.DB
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

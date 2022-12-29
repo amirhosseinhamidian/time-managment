@@ -20,7 +20,6 @@ class AddEditViewModel @Inject constructor(
 ): ViewModel() {
 
     fun saveCategory(category: Category) {
-
         viewModelScope.launch {
             categoryRepository.insertCategory(category)
         }
