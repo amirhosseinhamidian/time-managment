@@ -39,7 +39,7 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
         }
         if (category.isSelected) {
             holder.clHolder.setBackgroundResource(R.drawable.bg_button_stroke_orange)
-            holder.tvCategory.setTextColor(ContextCompat.getColor(context,R.color.teal_200))
+            holder.tvCategory.setTextColor(ContextCompat.getColor(context,R.color.secondary))
         } else{
             holder.clHolder.setBackgroundResource(R.drawable.bg_stroke_white)
             holder.tvCategory.setTextColor(ContextCompat.getColor(context,R.color.white))

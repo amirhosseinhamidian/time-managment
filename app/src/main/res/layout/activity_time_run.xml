@@ -1,129 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".presenter.timeRunScreen.TimeRunActivity"
-    android:background="@color/background">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvTaskTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Task Title"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presenter.timeRunScreen.TimeRunActivity"
+        android:background="@color/background">
 
-    <TextView
-        android:id="@+id/tvTaskCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="8dp"
-        android:textColor="#B4B4B4"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTaskTitle"
-        tools:text="Task Category" />
+        <TextView
+            android:id="@+id/tvTaskTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Task Title"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/llSave"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/bg_button_stroke_orange"
-        android:foreground="?selectableItemBackground"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tvTaskTitle">
+        <TextView
+            android:id="@+id/tvTaskCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="8dp"
+            android:textColor="#B4B4B4"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTaskTitle"
+            tools:text="Task Category" />
+
+        <LinearLayout
+            android:id="@+id/llSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/bg_button_stroke_orange"
+            android:foreground="?selectableItemBackground"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvTaskTitle">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_check"
+                android:layout_marginEnd="4dp"
+                app:tint="@color/secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="SAVE"
+                android:textColor="@color/secondary"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/vDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grayDark"
+            app:layout_constraintTop_toBottomOf="@+id/tvTaskCategory"
+            android:layout_marginTop="16dp"/>
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_check"
-            android:layout_marginEnd="4dp"
-            app:tint="@color/teal_200" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="SAVE"
-            android:textColor="@color/teal_200"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-
-        app:layout_constraintBottom_toTopOf="@+id/tvTimer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTaskCategory">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Time Spent :"
-            android:textColor="#B4B4B4"
-            android:textSize="16sp"
+            android:id="@+id/ivDesc"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="24dp"
+            android:src="@drawable/ic_outline_description"
+            android:padding="6dp"
+            android:background="@drawable/bg_stroke_gray_normal"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTaskTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/vDivider"
+            app:tint="@color/grayNormal" />
 
-        <TextView
-            android:id="@+id/tvTimeSpent"
+        <LinearLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:text="00 : 00 : 00"
-            android:textColor="#B4B4B4"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/tvTimer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vDivider"
+            app:layout_constraintVertical_bias="0.504">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time Spent :"
+                android:textColor="@color/grayNormal"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTaskTitle" />
+
+            <TextView
+                android:id="@+id/tvTimeSpent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="00 : 00 : 00"
+                android:textColor="@color/grayNormal"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTaskTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00:00"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/btStart"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.638" />
+
+        <TextView
+            android:id="@+id/btStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="48dp"
+            android:text="START"
+            android:textStyle="bold"
             android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTaskTitle" />
+            android:gravity="center"
+            android:paddingVertical="12dp"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_solid_orange"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/tvTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00:00:00"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btStart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include layout="@layout/bottom_sheet_desc_task" />
 
-    <TextView
-        android:id="@+id/btStart"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginBottom="48dp"
-        android:text="START"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:gravity="center"
-        android:paddingVertical="12dp"
-        android:textColor="@color/white"
-        android:background="@drawable/bg_solid_orange"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

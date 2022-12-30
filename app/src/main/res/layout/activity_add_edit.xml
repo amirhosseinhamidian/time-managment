@@ -103,13 +103,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_add"
-                app:tint="@color/teal_200" />
+                app:tint="@color/secondary" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="New Category"
-                android:textColor="@color/teal_200"
+                android:textColor="@color/secondary"
                 android:textStyle="bold"
                 android:layout_gravity="center_vertical"/>
         </LinearLayout>
@@ -137,7 +137,7 @@
             android:textStyle="bold"
             android:textSize="18sp"
             android:background="@drawable/bg_solid_orange"
-            app:backgroundTint="@color/teal_200"
+            app:backgroundTint="@color/secondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 

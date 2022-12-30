@@ -2,10 +2,15 @@ package com.amirhosseinhamidian.my.presenter.timeRunScreen
 
 import android.annotation.SuppressLint
 import android.content.*
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
+import android.view.LayoutInflater
+import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -15,11 +20,15 @@ import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.service.TimerService
 import com.amirhosseinhamidian.my.utils.Constants
 import com.amirhosseinhamidian.my.utils.isServiceRunningInForeground
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_time_run.*
+import kotlinx.android.synthetic.main.activity_time_run.view.*
+import kotlinx.android.synthetic.main.bottom_sheet_desc_task.*
+import kotlinx.android.synthetic.main.bottom_sheet_desc_task.view.*
 import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.concurrent.timerTask
+
 
 @AndroidEntryPoint
 class TimeRunActivity : AppCompatActivity() {
@@ -34,6 +43,7 @@ class TimeRunActivity : AppCompatActivity() {
     private val receiver: TimerStatusReceiver by lazy {
         TimerStatusReceiver()
     }
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +83,28 @@ class TimeRunActivity : AppCompatActivity() {
             viewModel.updateTime(task)
             finish()
         }
+
+        if (task.description!!.isEmpty()) {
+            ivDesc.visibility = View.GONE
+        }
+
+        ivDesc.setOnClickListener {
+            showDescription()
+        }
+    }
+
+    private fun showDescription() {
+        val bottomSheet = BottomSheetDialog(this, R.style.TutorialBottomSheetDialog)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_desc_task,null)
+        view.tvDesc.text = task.description
+        view.ivClose.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+        bottomSheet.setCancelable(true);
+        bottomSheet.setContentView(view);
+        bottomSheet.setCanceledOnTouchOutside(true);
+        bottomSheet.getWindow()!!.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(this,R.color.transparent)));
+        bottomSheet.show();
     }
 
     override fun onResume() {
@@ -102,7 +134,7 @@ class TimeRunActivity : AppCompatActivity() {
             // bind the activity to service again.
             bindService(intentToService, mServiceConnection , Context.BIND_AUTO_CREATE)
 
-            btStart.setTextColor(ContextCompat.getColor(this, R.color.teal_200))
+            btStart.setTextColor(ContextCompat.getColor(this, R.color.secondary))
             btStart.setBackgroundResource(R.drawable.bg_button_stroke_orange)
             btStart.text = "STOP"
         } else {
