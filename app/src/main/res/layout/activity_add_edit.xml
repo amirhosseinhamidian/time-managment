@@ -5,29 +5,74 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".presenter.addEditScreen.AddEditActivity"
         android:background="@color/background">
 
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_back"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvTitlePage" />
+
+        <TextView
+            android:id="@+id/tvTitlePage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add New Task"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintStart_toEndOf="@+id/ivBack"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <Button
+            android:id="@+id/btSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@color/transparent"
+            android:paddingHorizontal="16dp"
+            android:text="SAVE"
+            android:textColor="@color/secondary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/vDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.7" />
+
+        <View
+            android:id="@+id/vDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grayDark"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitlePage"
+            android:layout_marginTop="16dp"/>
 
         <TextView
             android:id="@+id/tvTaskTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Task Title"
-            android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textColor="@color/grayLight"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginStart="28dp"
             android:layout_marginTop="24dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/vDivider" />
 
         <EditText
             android:id="@+id/edtTaskTitle"
@@ -48,8 +93,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Task Description"
-            android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textColor="@color/grayLight"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginStart="28dp"
             android:layout_marginTop="24dp"
@@ -75,8 +120,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Task Category"
-            android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textColor="@color/grayLight"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginStart="28dp"
             android:layout_marginTop="32dp"
@@ -120,26 +165,11 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/tvTaskCategory"
             android:layout_marginTop="24dp"
-            android:layout_marginHorizontal="32dp"
+            android:layout_marginHorizontal="20dp"
             android:background="@drawable/edit_text_box"
             android:padding="16dp"
             android:minHeight="96dp"
             android:clipToPadding="false"/>
-
-        <Button
-            android:id="@+id/btSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginBottom="16dp"
-            android:text="SAVE"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:background="@drawable/bg_solid_orange"
-            app:backgroundTint="@color/secondary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

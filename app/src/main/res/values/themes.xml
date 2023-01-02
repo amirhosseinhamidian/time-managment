@@ -14,7 +14,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="TutorialBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+    <style name="DialogStyle" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/TutorialBottomSheetStyle</item>
     </style>
 

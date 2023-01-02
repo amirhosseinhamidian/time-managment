@@ -1,17 +1,16 @@
 package com.amirhosseinhamidian.my.presenter.timeRunScreen
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.*
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -21,12 +20,12 @@ import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.service.TimerService
 import com.amirhosseinhamidian.my.utils.Constants
 import com.amirhosseinhamidian.my.utils.isServiceRunningInForeground
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_time_run.*
-import kotlinx.android.synthetic.main.activity_time_run.view.*
-import kotlinx.android.synthetic.main.bottom_sheet_desc_task.*
+import kotlinx.android.synthetic.main.activity_time_run.ivBack
+import kotlinx.android.synthetic.main.activity_time_run.tvTaskCategory
+import kotlinx.android.synthetic.main.activity_time_run.tvTaskTitle
 import kotlinx.android.synthetic.main.bottom_sheet_desc_task.view.*
 import kotlinx.coroutines.launch
 
@@ -44,7 +43,7 @@ class TimeRunActivity : AppCompatActivity() {
     private val receiver: TimerStatusReceiver by lazy {
         TimerStatusReceiver()
     }
-    private var taskRunningId = -1L
+    private var status = -1
 
 
     @SuppressLint("SetTextI18n")
@@ -69,18 +68,20 @@ class TimeRunActivity : AppCompatActivity() {
         isBound.observe(this) { isActive ->
             if (isActive) {
                 viewModel.getTaskRunningId().observe(this) { taskActiveId ->
-                    taskRunningId = taskActiveId
                     lifecycleScope.launch {
                         if (taskActiveId == task.id) {
-                            updateUI(Constants.STATUS_TASK_ACTIVE)
+                            status = Constants.STATUS_TASK_ACTIVE
+                            updateUI()
                         }else {
-                            updateUI(Constants.STATUS_ANOTHER_TASK_ACTIVE)
+                            status = Constants.STATUS_ANOTHER_TASK_ACTIVE
+                            updateUI()
                         }
                     }
                 }
             } else {
                 lifecycleScope.launch {
-                    updateUI(Constants.STATUS_ANY_TASK_ACTIVE)
+                    status = Constants.STATUS_ANY_TASK_ACTIVE
+                    updateUI()
                 }
             }
         }
@@ -105,6 +106,8 @@ class TimeRunActivity : AppCompatActivity() {
             finish()
         }
 
+        ivBack.setOnClickListener { onBackPressed() }
+
         if (task.description!!.isEmpty()) {
             ivDesc.visibility = View.GONE
         }
@@ -115,7 +118,7 @@ class TimeRunActivity : AppCompatActivity() {
     }
 
     private fun showDescription() {
-        val bottomSheet = BottomSheetDialog(this, R.style.TutorialBottomSheetDialog)
+        val bottomSheet = BottomSheetDialog(this, R.style.DialogStyle)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_desc_task,null)
         view.tvDesc.text = task.description
         view.ivClose.setOnClickListener {
@@ -148,7 +151,7 @@ class TimeRunActivity : AppCompatActivity() {
         stopService(intentToService)
     }
 
-    private fun updateUI(status: Int) {
+    private fun updateUI() {
         when(status) {
             Constants.STATUS_TASK_ACTIVE -> {
                 // when the activity going to be Destroyed, the service will be Unbind from activity,
@@ -207,11 +210,38 @@ class TimeRunActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if (status == Constants.STATUS_ANY_TASK_ACTIVE && timerSec != 0 ) {
+            showSaveAlertDialog()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun showSaveAlertDialog() {
+        val dialog = Dialog(this, R.style.DialogStyle)
+        val view = LayoutInflater.from(this)
+            .inflate(R.layout.alert_dialog_save_task_time_elapsed, null,false)
+        dialog.setCancelable(false)
+        val tvSave = view.findViewById<TextView>(R.id.tvSave)
+        val tvNotSave = view.findViewById<TextView>(R.id.tvNotSave)
+        tvSave.setOnClickListener {
+            llSave.performClick()
+            super.onBackPressed()
+        }
+
+        tvNotSave.setOnClickListener {
+            super.onBackPressed()
+        }
+        dialog.setContentView(view)
+        dialog.show()
+    }
+
     inner class TimerStatusReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 Constants.ACTION_TIME_KEY -> {
-                    if (taskRunningId != task.id) return
+                    if (status == Constants.STATUS_ANOTHER_TASK_ACTIVE) return
                     if (intent.hasExtra(Constants.ACTION_TIME_VALUE)) {
                         val intentExtra = intent.getStringExtra(Constants.ACTION_TIME_VALUE)
                         timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE,0)

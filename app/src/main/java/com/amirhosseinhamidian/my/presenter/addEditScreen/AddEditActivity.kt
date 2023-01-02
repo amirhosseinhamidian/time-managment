@@ -28,11 +28,12 @@ class AddEditActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_edit)
+        ivBack.setOnClickListener { onBackPressed() }
         setupRecyclerview()
 
-        viewModel.getCategoryList().observe(this, Observer {
+        viewModel.getCategoryList().observe(this) {
             categoryListAdapter.add(it)
-        })
+        }
 
         llNewCategory.setOnClickListener {
             showDialog()
