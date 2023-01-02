@@ -8,4 +8,7 @@ interface TaskRepository {
     suspend fun updateTask(task: Task)
     suspend fun getAllTsk(): List<Task>
     suspend fun getTaskById(id: Long): Task
+    suspend fun isRunningAnyTask(): Boolean
+    suspend fun updateTaskStatus(active: Boolean, id: Long)
+    suspend fun getRunningTaskIdIfExists(): Long
 }

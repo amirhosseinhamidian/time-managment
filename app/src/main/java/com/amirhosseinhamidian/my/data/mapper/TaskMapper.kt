@@ -9,6 +9,7 @@ fun TaskEntity.toTask(): Task {
         id = id,
         title = title,
         description = description,
+        taskStatus = taskStatus,
         category = category,
         elapsedTime = elapsedTime
     )
@@ -19,6 +20,7 @@ fun Task.toTaskEntity(): TaskEntity {
         id = id,
         title = title,
         description = description,
+        taskStatus = taskStatus,
         category = category,
         elapsedTime = elapsedTime
     )

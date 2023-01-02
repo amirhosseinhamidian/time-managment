@@ -5,6 +5,7 @@ import android.content.*
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.viewModels
@@ -43,6 +44,7 @@ class TimeRunActivity : AppCompatActivity() {
     private val receiver: TimerStatusReceiver by lazy {
         TimerStatusReceiver()
     }
+    private var taskRunningId = -1L
 
 
     @SuppressLint("SetTextI18n")
@@ -65,21 +67,40 @@ class TimeRunActivity : AppCompatActivity() {
         )
 
         isBound.observe(this) { isActive ->
-            lifecycleScope.launch {
-                updateUI(isActive)
+            if (isActive) {
+                viewModel.getTaskRunningId().observe(this) { taskActiveId ->
+                    taskRunningId = taskActiveId
+                    lifecycleScope.launch {
+                        if (taskActiveId == task.id) {
+                            updateUI(Constants.STATUS_TASK_ACTIVE)
+                        }else {
+                            updateUI(Constants.STATUS_ANOTHER_TASK_ACTIVE)
+                        }
+                    }
+                }
+            } else {
+                lifecycleScope.launch {
+                    updateUI(Constants.STATUS_ANY_TASK_ACTIVE)
+                }
             }
         }
 
+
+
         btStart.setOnClickListener {
-            if (isBound.value!!)
+            val isActive = isBound.value!!
+            viewModel.updateTaskStatus(!isActive, task.id!!)
+            if (isActive) {
                 stopTimerService()
-            else
+            } else {
                 startTimerService()
+            }
         }
 
         llSave.setOnClickListener {
             if (isBound.value!!) stopTimerService()
             task.elapsedTime += timerSec
+            task.taskStatus = Constants.STATUS_STOPPED
             viewModel.updateTime(task)
             finish()
         }
@@ -127,20 +148,33 @@ class TimeRunActivity : AppCompatActivity() {
         stopService(intentToService)
     }
 
-    private fun updateUI(isStart: Boolean) {
-        if (isStart) {
-            // when the activity going to be Destroyed, the service will be Unbind from activity,
-            // But is still running in foreground. So when you start the app again, you should
-            // bind the activity to service again.
-            bindService(intentToService, mServiceConnection , Context.BIND_AUTO_CREATE)
+    private fun updateUI(status: Int) {
+        when(status) {
+            Constants.STATUS_TASK_ACTIVE -> {
+                // when the activity going to be Destroyed, the service will be Unbind from activity,
+                // But is still running in foreground. So when you start the app again, you should
+                // bind the activity to service again.
+                bindService(intentToService, mServiceConnection , Context.BIND_AUTO_CREATE)
 
-            btStart.setTextColor(ContextCompat.getColor(this, R.color.secondary))
-            btStart.setBackgroundResource(R.drawable.bg_button_stroke_orange)
-            btStart.text = "STOP"
-        } else {
-            btStart.setTextColor(ContextCompat.getColor(this, R.color.white))
-            btStart.setBackgroundResource(R.drawable.bg_solid_orange)
-            btStart.text = "START"
+                btStart.setTextColor(ContextCompat.getColor(this, R.color.secondary))
+                btStart.setBackgroundResource(R.drawable.bg_button_stroke_orange)
+                btStart.text = "STOP"
+            }
+
+            Constants.STATUS_ANOTHER_TASK_ACTIVE -> {
+                btStart.setTextColor(ContextCompat.getColor(this, R.color.white))
+                btStart.setBackgroundResource(R.drawable.bg_solid_gray_dark)
+                btStart.text = "Running Another ..."
+                btStart.isEnabled = false
+                llSave.visibility = View.GONE
+                tvTimer.alpha = 0.5f
+            }
+
+            Constants.STATUS_ANY_TASK_ACTIVE -> {
+                btStart.setTextColor(ContextCompat.getColor(this, R.color.white))
+                btStart.setBackgroundResource(R.drawable.bg_solid_orange)
+                btStart.text = "START"
+            }
         }
     }
 
@@ -165,7 +199,10 @@ class TimeRunActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         if (isBound.value!!) {
-            unbindService(mServiceConnection)
+            try {
+                unbindService(mServiceConnection)
+            }catch (e: java.lang.Exception) {
+            }
             isBound.postValue(false)
         }
     }
@@ -174,6 +211,7 @@ class TimeRunActivity : AppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 Constants.ACTION_TIME_KEY -> {
+                    if (taskRunningId != task.id) return
                     if (intent.hasExtra(Constants.ACTION_TIME_VALUE)) {
                         val intentExtra = intent.getStringExtra(Constants.ACTION_TIME_VALUE)
                         timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE,0)

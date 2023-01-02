@@ -10,13 +10,13 @@ import com.amirhosseinhamidian.my.data.db.entity.CategoryEntity
 import com.amirhosseinhamidian.my.data.db.entity.TaskEntity
 
 @Database(entities = [TaskEntity::class , CategoryEntity::class],
-    version = 2,
+    version = 3,
     autoMigrations = [
-        AutoMigration(from = 1, to = 2)
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2 , to = 3)
     ]
 )
 abstract class DB: RoomDatabase() {
     abstract val taskDao: TaskDao
     abstract val categoryDao: CategoryDao
-
 }

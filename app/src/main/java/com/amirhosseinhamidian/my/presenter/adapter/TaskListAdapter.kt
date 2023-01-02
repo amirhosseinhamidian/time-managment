@@ -14,7 +14,8 @@ import com.amirhosseinhamidian.my.presenter.timeRunScreen.TimeRunActivity
 
 class TaskListAdapter(private val context: Context , private val mList: ArrayList<Task>) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>() {
 
-    public fun add(dataList: List<Task>) {
+
+    fun add(dataList: List<Task>) {
         mList.clear()
         mList.addAll(dataList)
         notifyDataSetChanged()
@@ -46,6 +47,10 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
         val hour = timeInSec/3600
         val minute = timeInSec/60%60
         return "${hour}h : ${minute}m"
+    }
+
+    fun stopActiveTask() {
+
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
