@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.presenter.timeRunScreen.TimeRunActivity
+import com.amirhosseinhamidian.my.utils.Constants
 
 
 class TaskListAdapter(private val context: Context , private val mList: ArrayList<Task>) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>() {
@@ -37,6 +39,11 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
             intent.putExtra("task", task)
             context.startActivity(intent)
         }
+        if(task.taskStatus == Constants.STATUS_RUNNING) {
+            holder.clHolder.setBackgroundResource(R.drawable.bg_solid_green)
+        } else {
+            holder.clHolder.setBackgroundResource(R.drawable.edit_text_box)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -49,13 +56,10 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
         return "${hour}h : ${minute}m"
     }
 
-    fun stopActiveTask() {
-
-    }
-
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val tvTaskTitle : TextView = itemView.findViewById(R.id.tvTaskTitle)
         val tvTaskCategory : TextView = itemView.findViewById(R.id.tvTaskCategory)
         val tvTaskTimeDone : TextView = itemView.findViewById(R.id.tvTaskTimeDone)
+        val clHolder : ConstraintLayout = itemView.findViewById(R.id.clHolder)
     }
 }

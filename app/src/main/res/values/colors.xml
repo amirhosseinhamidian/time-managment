@@ -12,5 +12,6 @@
     <color name="grayDark">#515151</color>
     <color name="background">#041124</color>
     <color name="backgroundDialog">#031C41</color>
+    <color name="green">#2E7D32</color>
     <color name="transparent">#00000000</color>
 </resources>
