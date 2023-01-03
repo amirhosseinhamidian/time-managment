@@ -30,6 +30,10 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
         return taskToClear
     }
 
+    fun getItemPosition(position: Int): Task {
+        return mList[position]
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.task_item,parent,false)
         return ViewHolder(view)

@@ -31,6 +31,12 @@ class AddEditViewModel @Inject constructor(
         }
     }
 
+    fun updateTask(task: Task) {
+        viewModelScope.launch {
+            taskRepository.updateTask(task)
+        }
+    }
+
     fun getCategoryList(): LiveData<List<Category>> {
         val result = MutableLiveData<List<Category>>()
         viewModelScope.launch {

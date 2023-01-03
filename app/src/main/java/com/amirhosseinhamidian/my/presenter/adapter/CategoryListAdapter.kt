@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
+import com.amirhosseinhamidian.my.domain.model.Task
 
 class CategoryListAdapter(private val context: Context ,private val mList: ArrayList<Category>): RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
 
@@ -62,6 +63,15 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
                 return it
         }
         return Category(name = "")
+    }
+
+    fun selectCategory(category: String) {
+        for (item in mList) {
+            if (category == item.name) {
+                item.isSelected = true
+            }
+        }
+        notifyDataSetChanged()
     }
 
 

@@ -24,15 +24,35 @@ class AddEditActivity: AppCompatActivity() {
     private val viewModel: AddEditViewModel by viewModels()
     private lateinit var categoryListAdapter: CategoryListAdapter
     private lateinit var categorySelected: Category
+    private lateinit var taskEdit: Task
+    private var mode = MODE_ADD
+    companion object {
+        const val MODE_ADD = 1
+        const val MODE_EDIT = 2
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_edit)
         ivBack.setOnClickListener { onBackPressed() }
-        setupRecyclerview()
+        if (intent.hasExtra("mode")) {
+            mode = intent.getIntExtra("mode", MODE_ADD)
+        }
 
+        if (mode == MODE_EDIT && intent.hasExtra("task")) {
+            taskEdit = intent.getSerializableExtra("task") as Task
+            edtTaskTitle.setText(taskEdit.title)
+            edtTaskDsc.setText(taskEdit.description)
+            tvTitlePage.text = "Edit Task"
+            btSave.text = "Update"
+        }
+
+        setupRecyclerview()
         viewModel.getCategoryList().observe(this) {
             categoryListAdapter.add(it)
+            if (mode == MODE_EDIT) {
+                categoryListAdapter.selectCategory(taskEdit.category)
+            }
         }
 
         llNewCategory.setOnClickListener {
@@ -46,12 +66,22 @@ class AddEditActivity: AppCompatActivity() {
                 return@setOnClickListener
             }
             if (tvTaskTitle.text.isNotEmpty()){
-                viewModel.saveTask(
-                    Task(title = edtTaskTitle.text.toString(),
-                        description = edtTaskDsc.text.toString(),
-                        category = categorySelected.name,
-                        elapsedTime = 0)
-                )
+                if (mode == MODE_ADD) {
+                    viewModel.saveTask(
+                        Task(title = edtTaskTitle.text.toString(),
+                            description = edtTaskDsc.text.toString(),
+                            category = categorySelected.name,
+                            elapsedTime = 0)
+                    )
+                } else if (mode == MODE_EDIT) {
+                    viewModel.updateTask(
+                        Task(id = taskEdit.id,
+                            title = edtTaskTitle.text.toString(),
+                            description = edtTaskDsc.text.toString(),
+                            category = categorySelected.name,
+                            elapsedTime = taskEdit.elapsedTime)
+                    )
+                }
                 finish()
             }else{
                 Toast.makeText(this,"please enter title of task", Toast.LENGTH_SHORT).show()
