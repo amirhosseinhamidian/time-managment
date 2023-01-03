@@ -23,6 +23,13 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
         notifyDataSetChanged()
     }
 
+    fun removeAt(position: Int): Task {
+        val taskToClear = mList[position]
+        mList.removeAt(position)
+        notifyItemRemoved(position)
+        return taskToClear
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.task_item,parent,false)
         return ViewHolder(view)

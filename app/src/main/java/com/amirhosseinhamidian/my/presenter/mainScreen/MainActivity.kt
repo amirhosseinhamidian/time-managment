@@ -1,16 +1,20 @@
 package com.amirhosseinhamidian.my.presenter.mainScreen
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.presenter.adapter.TaskListAdapter
 import com.amirhosseinhamidian.my.presenter.addEditScreen.AddEditActivity
+import com.amirhosseinhamidian.my.utils.CustomDialog
+import com.amirhosseinhamidian.my.utils.SwipeRecyclerviewItemCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -28,14 +32,37 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getAllTask().observe(this, Observer {
+        viewModel.getAllTask().observe(this) {
             adapter.add(it)
-        })
+        }
     }
 
     private fun setupRecyclerview() {
         adapter = TaskListAdapter(this , arrayListOf())
         recyclerview.layoutManager = LinearLayoutManager(this)
         recyclerview.adapter = adapter
+        val swipeHandler = object : SwipeRecyclerviewItemCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val customDialog = CustomDialog(this@MainActivity)
+                customDialog.setCancelable(false)
+                customDialog.setTitle("Delete")
+                customDialog.setMessage("Are you sure to delete this task? \n It's clear forever")
+                customDialog.setPositiveButton("Yes") {
+                    val adapter = recyclerview.adapter as TaskListAdapter
+                    val taskToClear = adapter.removeAt(viewHolder.adapterPosition)
+                    customDialog.dismiss()
+                    viewModel.deleteTask(taskToClear)
+                }
+                customDialog.setNegativeButton("Cancel") {
+                    val adapter = recyclerview.adapter as TaskListAdapter
+                    adapter.notifyDataSetChanged()
+                    customDialog.dismiss()
+                }
+
+                customDialog.show()
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(recyclerview)
     }
 }
