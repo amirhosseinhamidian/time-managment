@@ -29,4 +29,12 @@ class MainViewModel@Inject constructor(
             taskRepository.deleteTask(taskToClear)
         }
     }
+
+    fun getTodayElapsedTime(): LiveData<Int> {
+        val result = MutableLiveData<Int>()
+        viewModelScope.launch {
+           result.postValue(taskRepository.getTodayElapsedTime())
+        }
+        return result
+    }
 }

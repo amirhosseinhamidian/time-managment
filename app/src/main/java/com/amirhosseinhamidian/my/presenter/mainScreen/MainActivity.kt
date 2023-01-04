@@ -15,7 +15,6 @@ import com.amirhosseinhamidian.my.utils.SwipeRecyclerviewItemCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -35,10 +34,13 @@ class MainActivity : AppCompatActivity() {
         viewModel.getAllTask().observe(this) {
             adapter.add(it)
         }
+        viewModel.getTodayElapsedTime().observe(this) {
+            adapter.addTodayElapsedTime(it)
+        }
     }
 
     private fun setupRecyclerview() {
-        adapter = TaskListAdapter(this , arrayListOf())
+        adapter = TaskListAdapter(this , arrayListOf(),true)
         recyclerview.layoutManager = LinearLayoutManager(this)
         recyclerview.adapter = adapter
         val swipeHandler = object : SwipeRecyclerviewItemCallback(this) {

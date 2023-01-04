@@ -107,7 +107,7 @@ class TimeRunActivity : AppCompatActivity() {
             task.elapsedTime += timerSec
             task.taskStatus = Constants.STATUS_STOPPED
             viewModel.updateTime(task)
-            viewModel.checkDailyDetailIsExist(taskId = task.id!!, date = viewModel.getCurrentDate())
+            viewModel.checkDailyDetailIsExist(taskId = task.id!!)
                 .observe(this) { timeToday ->
                     if (timeToday == null) {
                         viewModel.insertDetail(details = DailyDetails(

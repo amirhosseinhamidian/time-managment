@@ -10,4 +10,10 @@ data class Task(
     var taskStatus: Int? = null,
     val category: String,
     var elapsedTime: Int
-) : Serializable
+) : Serializable {
+    companion object {
+        fun hiddenTask() : Task {
+            return Task(-1,"", category = "", elapsedTime = 0)
+        }
+    }
+}

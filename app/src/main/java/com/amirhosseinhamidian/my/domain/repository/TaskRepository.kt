@@ -14,6 +14,7 @@ interface TaskRepository {
     suspend fun getRunningTaskIdIfExists(): Long
     suspend fun insertDailyDetails(dailyDetails: DailyDetails)
     suspend fun updateDailyDetails(taskId: Long, time: Int)
-    suspend fun checkDailyDetailIsExist(date: String , taskId: Long): Int
+    suspend fun checkDailyDetailIsExist(taskId: Long): Int
     suspend fun getDailyDetailsById(taskId: Long , fewLastDay: Int): List<DailyDetails>
+    suspend fun getTodayElapsedTime(): Int
 }

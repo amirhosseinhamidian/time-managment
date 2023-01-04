@@ -50,5 +50,8 @@ interface TaskDao {
 
     @Query("SELECT * FROM daily_details_table WHERE taskId=:taskId ORDER BY id DESC LIMIT :fewLastDay")
     suspend fun getDailyDetailsById(taskId: Long , fewLastDay: Int): List<DailyDetailsEntity>
+
+    @Query("SELECT * FROM daily_details_table WHERE date=:date")
+    suspend fun getTodayElapsedTime(date: String): List<DailyDetailsEntity>
     //endregion
 }

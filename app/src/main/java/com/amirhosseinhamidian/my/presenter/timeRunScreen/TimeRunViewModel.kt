@@ -59,10 +59,10 @@ class TimeRunViewModel @Inject constructor(
         }
     }
 
-    fun checkDailyDetailIsExist(date: String , taskId: Long) : LiveData<Int> {
+    fun checkDailyDetailIsExist(taskId: Long) : LiveData<Int> {
         val result = MutableLiveData<Int>()
         viewModelScope.launch {
-            result.postValue(taskRepository.checkDailyDetailIsExist(date, taskId))
+            result.postValue(taskRepository.checkDailyDetailIsExist(taskId))
         }
         return result
     }
