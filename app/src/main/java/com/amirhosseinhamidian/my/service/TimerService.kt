@@ -29,6 +29,7 @@ class TimerService : Service() {
     private val job = Job()
     var timeFlow: MutableStateFlow<String> = MutableStateFlow("")
     private lateinit var notificationBuilder: Notification.Builder
+    var timeSpent = 0L
 
     private var notificationReceiver: BroadcastReceiver =
         object : BroadcastReceiver() {
@@ -58,7 +59,6 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         CoroutineScope(job).launch(Dispatchers.IO) {
 
             // while isBound is true, means the service has a work to do because it is used in
@@ -67,13 +67,11 @@ class TimerService : Service() {
 
             while (isBound) {
                 if (!isBound) break
-
                 timeFlow.value = getTimestamp().also { time ->
                     updateNotification(time)
                 }
                 delay(1000)
             }
-
         }
         return START_NOT_STICKY
     }
@@ -90,7 +88,7 @@ class TimerService : Service() {
     }
 
     private fun getTimestamp(): String {
-        val elapsedMillis = SystemClock.elapsedRealtime() - chronometer.base
+        val elapsedMillis = SystemClock.elapsedRealtime() - chronometer.base + timeSpent
 
         val hours = (elapsedMillis / 3600000).toInt()
         val minutes = (elapsedMillis - hours * 3600000).toInt() / 60000
@@ -98,7 +96,8 @@ class TimerService : Service() {
 
         val time = getString(R.string.time, hours, minutes, seconds)
 
-        sendBroadcastEvent(Constants.ACTION_TIME_KEY, time, (elapsedMillis/1000).toInt())
+        if(elapsedMillis > 1000L)
+            sendBroadcastEvent(Constants.ACTION_TIME_KEY, time, (elapsedMillis/1000).toInt())
 
         return time
     }
@@ -106,6 +105,7 @@ class TimerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isBound = false
+        timeSpent = SystemClock.elapsedRealtime() - chronometer.base
         chronometer.stop()
         unregisterReceiver(notificationReceiver)
     }

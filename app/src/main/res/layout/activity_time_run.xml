@@ -142,28 +142,46 @@
             android:textColor="@color/white"
             android:textSize="32sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/btStart"
+            app:layout_constraintBottom_toTopOf="@+id/llButtons"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.638" />
 
-        <TextView
-            android:id="@+id/btStart"
+        <LinearLayout
+            android:id="@+id/llButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginBottom="48dp"
-            android:text="START"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:paddingVertical="12dp"
-            android:textColor="@color/white"
-            android:background="@drawable/bg_solid_orange"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="48dp">
+
+            <TextView
+                android:id="@+id/btStart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="START"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:paddingVertical="12dp"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_solid_orange" />
+
+            <ImageView
+                android:id="@+id/ivReset"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_baseline_replay"
+                android:padding="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_stroke_gray_normal"
+                app:tint="@color/grayNormal" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

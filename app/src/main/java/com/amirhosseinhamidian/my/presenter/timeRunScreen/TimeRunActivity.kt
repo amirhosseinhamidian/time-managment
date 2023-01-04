@@ -19,6 +19,7 @@ import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.service.TimerService
 import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.CustomDialog
 import com.amirhosseinhamidian.my.utils.isServiceRunningInForeground
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,6 +45,7 @@ class TimeRunActivity : AppCompatActivity() {
         TimerStatusReceiver()
     }
     private var status = -1
+    var timeSpent = 0L
 
 
     @SuppressLint("SetTextI18n")
@@ -93,6 +95,7 @@ class TimeRunActivity : AppCompatActivity() {
             viewModel.updateTaskStatus(!isActive, task.id!!)
             if (isActive) {
                 stopTimerService()
+                timeSpent = timerSec.toLong()
             } else {
                 startTimerService()
             }
@@ -114,6 +117,24 @@ class TimeRunActivity : AppCompatActivity() {
 
         ivDesc.setOnClickListener {
             showDescription()
+        }
+
+        ivReset.setOnClickListener {
+            val customDialog = CustomDialog(this)
+            customDialog.setTitle("Warning")
+            customDialog.setMessage("Are you sure to reset your time?")
+            customDialog.setCancelable(false)
+            customDialog.setPositiveButton("Yes") {
+                stopTimerService()
+                timerSec = 0
+                timeSpent = 0L
+                tvTimer.text = "00:00:00"
+                customDialog.dismiss()
+            }
+            customDialog.setNegativeButton("close") {
+                customDialog.dismiss()
+            }
+            customDialog.show()
         }
     }
 
@@ -185,13 +206,13 @@ class TimeRunActivity : AppCompatActivity() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val myBinder = service as TimerService.TimerBinder
             timerService = myBinder.service
+            timerService.timeSpent = timeSpent * 1000L
             isBound.postValue(true)
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
             TODO("Not yet implemented")
         }
-
     }
 
     override fun onPause() {
@@ -246,7 +267,7 @@ class TimeRunActivity : AppCompatActivity() {
                         val intentExtra = intent.getStringExtra(Constants.ACTION_TIME_VALUE)
                         timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE,0)
                         if (intentExtra == Constants.ACTION_TIMER_STOP) {
-                            llSave.performClick()
+
                         } else {
                             tvTimer.text = intent.getStringExtra(Constants.ACTION_TIME_TEXT_VALUE)
                         }
