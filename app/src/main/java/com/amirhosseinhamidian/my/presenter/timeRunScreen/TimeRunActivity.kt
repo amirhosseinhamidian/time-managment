@@ -6,6 +6,7 @@ import android.content.*
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -16,6 +17,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.amirhosseinhamidian.my.R
+import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.service.TimerService
 import com.amirhosseinhamidian.my.utils.Constants
@@ -29,6 +31,7 @@ import kotlinx.android.synthetic.main.activity_time_run.tvTaskCategory
 import kotlinx.android.synthetic.main.activity_time_run.tvTaskTitle
 import kotlinx.android.synthetic.main.bottom_sheet_desc_task.view.*
 import kotlinx.coroutines.launch
+import java.util.Date
 
 
 @AndroidEntryPoint
@@ -88,8 +91,6 @@ class TimeRunActivity : AppCompatActivity() {
             }
         }
 
-
-
         btStart.setOnClickListener {
             val isActive = isBound.value!!
             viewModel.updateTaskStatus(!isActive, task.id!!)
@@ -106,6 +107,18 @@ class TimeRunActivity : AppCompatActivity() {
             task.elapsedTime += timerSec
             task.taskStatus = Constants.STATUS_STOPPED
             viewModel.updateTime(task)
+            viewModel.checkDailyDetailIsExist(taskId = task.id!!, date = viewModel.getCurrentDate())
+                .observe(this) { timeToday ->
+                    if (timeToday == null) {
+                        viewModel.insertDetail(details = DailyDetails(
+                            taskId = task.id!!,
+                            date = viewModel.getCurrentDate(),
+                            time = timerSec
+                        ))
+                    } else {
+                        viewModel.updateDetail(taskId = task.id!!, time = timeToday + timerSec)
+                    }
+            }
             finish()
         }
 
@@ -250,7 +263,6 @@ class TimeRunActivity : AppCompatActivity() {
             llSave.performClick()
             super.onBackPressed()
         }
-
         tvNotSave.setOnClickListener {
             super.onBackPressed()
         }

@@ -2,8 +2,11 @@ package com.amirhosseinhamidian.my.data.repository
 
 
 import com.amirhosseinhamidian.my.data.db.DB
+import com.amirhosseinhamidian.my.data.mapper.toDailyDetails
+import com.amirhosseinhamidian.my.data.mapper.toDailyDetailsEntity
 import com.amirhosseinhamidian.my.data.mapper.toTask
 import com.amirhosseinhamidian.my.data.mapper.toTaskEntity
+import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository
 import com.amirhosseinhamidian.my.utils.Constants
@@ -47,6 +50,22 @@ class TaskRepositoryImpl @Inject  constructor(
 
     override suspend fun getRunningTaskIdIfExists(): Long {
         return dao.getRunningTaskIdIfExists(Constants.STATUS_RUNNING)
+    }
+
+    override suspend fun insertDailyDetails(dailyDetails: DailyDetails) {
+        return dao.insertDailyDetails(dailyDetails.toDailyDetailsEntity())
+    }
+
+    override suspend fun updateDailyDetails(taskId: Long, time: Int) {
+        return dao.updateDailyDetails(taskId, time)
+    }
+
+    override suspend fun checkDailyDetailIsExist(date: String, taskId: Long): Int {
+        return dao.checkDailyDetailIsExist(date, taskId)
+    }
+
+    override suspend fun getDailyDetailsById(taskId: Long, fewLastDay: Int): List<DailyDetails> {
+        return dao.getDailyDetailsById(taskId, fewLastDay).map { it.toDailyDetails() }
     }
 
 }
