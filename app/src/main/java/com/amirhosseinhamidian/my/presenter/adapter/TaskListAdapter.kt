@@ -64,7 +64,7 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
                 val c: Date = Calendar.getInstance().time
                 val df = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
                 viewHolder.tvDate.text = df.format(c)
-                viewHolder.tvElapsedTime.text = "Today: " + calculateTimeInHourMinuteFormat(elapsedTime)
+                viewHolder.tvElapsedTime.text = calculateTimeInHourMinuteFormat(elapsedTime)
             }
             VIEW_TYPE_TASKS -> {
                 val viewHolder = holder as ViewHolder
