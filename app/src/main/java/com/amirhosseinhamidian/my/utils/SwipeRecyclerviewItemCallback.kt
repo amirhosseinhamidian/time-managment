@@ -2,7 +2,6 @@ package com.amirhosseinhamidian.my.utils
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import androidx.core.content.ContextCompat
