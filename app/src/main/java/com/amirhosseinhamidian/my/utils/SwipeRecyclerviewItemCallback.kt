@@ -24,6 +24,7 @@ abstract class SwipeRecyclerviewItemCallback(context: Context) :
     private val bgColorDelete = ContextCompat.getColor(context, R.color.red)
     private val bgColorEdit = ContextCompat.getColor(context, R.color.blue)
     private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
+    private var disablePositions: List<Int> = emptyList()
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -31,6 +32,16 @@ abstract class SwipeRecyclerviewItemCallback(context: Context) :
         target: RecyclerView.ViewHolder
     ): Boolean {
         return false
+    }
+
+    override fun getSwipeDirs(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder
+    ): Int {
+        disablePositions.forEach {
+            if (viewHolder.adapterPosition == it) return 0
+        }
+        return super.getSwipeDirs(recyclerView, viewHolder)
     }
 
     override fun onChildDraw(
@@ -42,6 +53,7 @@ abstract class SwipeRecyclerviewItemCallback(context: Context) :
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
+
         val itemView = viewHolder.itemView
         val itemHeight = itemView.bottom - itemView.top
         val isCanceled = dX == 0f && !isCurrentlyActive
@@ -108,7 +120,6 @@ abstract class SwipeRecyclerviewItemCallback(context: Context) :
         val editIconRight = itemView.left + editIconMargin + intrinsicWidthEdit
         val editIconBottom = editIconTop + intrinsicHeightEdit
 
-        Log.e("amir","${itemView.right}   ${itemView.left}   $editIconMargin  $intrinsicWidthEdit")
         // Draw the delete icon
         editIcon!!.setBounds(editIconLeft, editIconTop, editIconRight, editIconBottom)
         if(dX > context.dpToPx(40)) editIcon.draw(canvas)
@@ -118,5 +129,9 @@ abstract class SwipeRecyclerviewItemCallback(context: Context) :
 
     private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {
         c?.drawRect(left, top, right, bottom, clearPaint)
+    }
+
+    fun setDisablePositions(listPos : List<Int>) {
+        disablePositions = listPos
     }
 }

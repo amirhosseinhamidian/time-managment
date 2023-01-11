@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        swipeHandler.setDisablePositions(listOf(0))
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerview)
     }
