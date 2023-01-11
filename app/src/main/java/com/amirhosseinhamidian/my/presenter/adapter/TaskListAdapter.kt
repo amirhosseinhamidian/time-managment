@@ -62,7 +62,7 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
             VIEW_TYPE_HEADER -> {
                 val viewHolder = holder as ViewHolderHeader
                 val c: Date = Calendar.getInstance().time
-                val df = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                val df = SimpleDateFormat("dd MMM yyyy , EE", Locale.getDefault())
                 viewHolder.tvDate.text = df.format(c)
                 viewHolder.tvElapsedTime.text = calculateTimeInHourMinuteFormat(elapsedTime)
             }
