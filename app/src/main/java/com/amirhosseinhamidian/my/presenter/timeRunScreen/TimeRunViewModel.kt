@@ -1,22 +1,22 @@
 package com.amirhosseinhamidian.my.presenter.timeRunScreen
 
-import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.domain.model.Task
+import com.amirhosseinhamidian.my.domain.repository.MyDataStore
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository
+import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.Date
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class TimeRunViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val myDataStore: MyDataStore
 ): ViewModel() {
 
     fun isAnyTaskRunning(): LiveData<Boolean> {
@@ -53,16 +53,16 @@ class TimeRunViewModel @Inject constructor(
         }
     }
 
-    fun updateDetail(taskId: Long, time: Int) {
+    fun updateDetail(taskId: Long, time: Int, date: String) {
         viewModelScope.launch {
-            taskRepository.updateDailyDetails(taskId, time)
+            taskRepository.updateDailyDetails(taskId, time ,date)
         }
     }
 
     fun checkDailyDetailIsExist(taskId: Long) : LiveData<Int> {
         val result = MutableLiveData<Int>()
         viewModelScope.launch {
-            result.postValue(taskRepository.checkDailyDetailIsExist(taskId))
+            result.postValue(taskRepository.checkDailyDetailIsExist(taskId,Constants.CURRENT_DATE_STATUS))
         }
         return result
     }
@@ -75,10 +75,17 @@ class TimeRunViewModel @Inject constructor(
         return result
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun getCurrentDate(): String {
-        val calendar: Calendar = Calendar.getInstance()
-        val sdf = SimpleDateFormat("yyyy-MM-dd")
-        return sdf.format(calendar.time)
+    fun getTimeBeforeMidnight(): LiveData<Int> {
+        return myDataStore.getMidnightTime(Date.getYesterdayDate()).distinctUntilChanged().asLiveData()
+    }
+
+    fun clearDataStore() {
+        viewModelScope.launch {
+            myDataStore.clearMidnightTime()
+        }
+    }
+
+    fun isMidnightKeyStored(): LiveData<Boolean> {
+        return myDataStore.isMidnightKeyStored(Date.getYesterdayDate()).asLiveData()
     }
 }

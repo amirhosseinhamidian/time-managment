@@ -6,7 +6,6 @@ import android.content.*
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -20,9 +19,7 @@ import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.service.TimerService
-import com.amirhosseinhamidian.my.utils.Constants
-import com.amirhosseinhamidian.my.utils.CustomDialog
-import com.amirhosseinhamidian.my.utils.isServiceRunningInForeground
+import com.amirhosseinhamidian.my.utils.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_time_run.*
@@ -31,17 +28,16 @@ import kotlinx.android.synthetic.main.activity_time_run.tvTaskCategory
 import kotlinx.android.synthetic.main.activity_time_run.tvTaskTitle
 import kotlinx.android.synthetic.main.bottom_sheet_desc_task.view.*
 import kotlinx.coroutines.launch
-import java.util.Date
 
 
 @AndroidEntryPoint
 class TimeRunActivity : AppCompatActivity() {
-    private val viewModel: TimeRunViewModel by  viewModels()
+    private val viewModel: TimeRunViewModel by viewModels()
     private lateinit var task: Task
     private var timerSec: Int = 0
     private var isBound = MutableLiveData(false)
     private val intentToService by lazy {
-        Intent(this,TimerService::class.java)
+        Intent(this, TimerService::class.java)
     }
     private lateinit var timerService: TimerService
     private val receiver: TimerStatusReceiver by lazy {
@@ -49,6 +45,7 @@ class TimeRunActivity : AppCompatActivity() {
     }
     private var status = -1
     var timeSpent = 0L
+    private var timeBeforeMidnight = 0
 
 
     @SuppressLint("SetTextI18n")
@@ -62,9 +59,9 @@ class TimeRunActivity : AppCompatActivity() {
         task = intent.getSerializableExtra("task") as Task
         tvTaskTitle.text = task.title
         tvTaskCategory.text = task.category
-        tvTimeSpent.text = String.format("%02d",(task.elapsedTime / (60 * 60)) % 24) +
-                " : " + String.format("%02d",(task.elapsedTime / 60) % 60) +
-                " : " + String.format("%02d",task.elapsedTime % 60)
+        tvTimeSpent.text = String.format("%02d", (task.elapsedTime / (60 * 60)) % 24) +
+                " : " + String.format("%02d", (task.elapsedTime / 60) % 60) +
+                " : " + String.format("%02d", task.elapsedTime % 60)
 
         isBound.postValue(
             isServiceRunningInForeground(TimerService::class.java)
@@ -77,7 +74,7 @@ class TimeRunActivity : AppCompatActivity() {
                         if (taskActiveId == task.id) {
                             status = Constants.STATUS_TASK_ACTIVE
                             updateUI()
-                        }else {
+                        } else {
                             status = Constants.STATUS_ANOTHER_TASK_ACTIVE
                             updateUI()
                         }
@@ -108,17 +105,40 @@ class TimeRunActivity : AppCompatActivity() {
             task.taskStatus = Constants.STATUS_STOPPED
             viewModel.updateTime(task)
             viewModel.checkDailyDetailIsExist(taskId = task.id!!)
-                .observe(this) { timeToday ->
+                .observeOnce(this) { timeToday ->
                     if (timeToday == null) {
-                        viewModel.insertDetail(details = DailyDetails(
-                            taskId = task.id!!,
-                            date = viewModel.getCurrentDate(),
-                            time = timerSec
-                        ))
+                        viewModel.isMidnightKeyStored().observeOnce(this) {
+                            if (it) {
+                                viewModel.getTimeBeforeMidnight().observeOnce(this) {time ->
+                                    viewModel.clearDataStore()
+                                    timeBeforeMidnight = time
+                                    viewModel.insertDetail(
+                                        details = DailyDetails(
+                                            taskId = task.id!!,
+                                            date = Date.getCurrentDate(),
+                                            time = timerSec - timeBeforeMidnight
+                                        )
+                                    )
+                                }
+                            }else {
+                                viewModel.insertDetail(
+                                    details = DailyDetails(
+                                        taskId = task.id!!,
+                                        date = Date.getCurrentDate(),
+                                        time = timerSec
+                                    )
+                                )
+                            }
+                        }
                     } else {
-                        viewModel.updateDetail(taskId = task.id!!, time = timeToday + timerSec)
+                        viewModel.updateDetail(
+                            taskId = task.id!!,
+                            time = timeToday + timerSec - timeBeforeMidnight,
+                            Date.getCurrentDate()
+                        )
                     }
-            }
+
+                }
             finish()
         }
 
@@ -153,7 +173,7 @@ class TimeRunActivity : AppCompatActivity() {
 
     private fun showDescription() {
         val bottomSheet = BottomSheetDialog(this, R.style.DialogStyle)
-        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_desc_task,null)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_desc_task, null)
         view.tvDesc.text = task.description
         view.ivClose.setOnClickListener {
             bottomSheet.dismiss()
@@ -161,7 +181,14 @@ class TimeRunActivity : AppCompatActivity() {
         bottomSheet.setCancelable(true);
         bottomSheet.setContentView(view);
         bottomSheet.setCanceledOnTouchOutside(true);
-        bottomSheet.getWindow()!!.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(this,R.color.transparent)));
+        bottomSheet.getWindow()!!.setBackgroundDrawable(
+            ColorDrawable(
+                ContextCompat.getColor(
+                    this,
+                    R.color.transparent
+                )
+            )
+        );
         bottomSheet.show();
     }
 
@@ -170,6 +197,7 @@ class TimeRunActivity : AppCompatActivity() {
         isBound.postValue(isServiceRunningInForeground(TimerService::class.java))
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(receiver, IntentFilter(Constants.ACTION_TIME_KEY))
+
     }
 
     private fun startTimerService() {
@@ -186,12 +214,12 @@ class TimeRunActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        when(status) {
+        when (status) {
             Constants.STATUS_TASK_ACTIVE -> {
                 // when the activity going to be Destroyed, the service will be Unbind from activity,
                 // But is still running in foreground. So when you start the app again, you should
                 // bind the activity to service again.
-                bindService(intentToService, mServiceConnection , Context.BIND_AUTO_CREATE)
+                bindService(intentToService, mServiceConnection, Context.BIND_AUTO_CREATE)
 
                 btStart.setTextColor(ContextCompat.getColor(this, R.color.secondary))
                 btStart.setBackgroundResource(R.drawable.bg_button_stroke_orange)
@@ -220,6 +248,7 @@ class TimeRunActivity : AppCompatActivity() {
             val myBinder = service as TimerService.TimerBinder
             timerService = myBinder.service
             timerService.timeSpent = timeSpent * 1000L
+            timerService.task = task
             isBound.postValue(true)
         }
 
@@ -238,14 +267,14 @@ class TimeRunActivity : AppCompatActivity() {
         if (isBound.value!!) {
             try {
                 unbindService(mServiceConnection)
-            }catch (e: java.lang.Exception) {
+            } catch (e: java.lang.Exception) {
             }
             isBound.postValue(false)
         }
     }
 
     override fun onBackPressed() {
-        if (status == Constants.STATUS_ANY_TASK_ACTIVE && timerSec != 0 ) {
+        if (status == Constants.STATUS_ANY_TASK_ACTIVE && timerSec != 0) {
             showSaveAlertDialog()
         } else {
             super.onBackPressed()
@@ -255,7 +284,7 @@ class TimeRunActivity : AppCompatActivity() {
     private fun showSaveAlertDialog() {
         val dialog = Dialog(this, R.style.DialogStyle)
         val view = LayoutInflater.from(this)
-            .inflate(R.layout.alert_dialog_save_task_time_elapsed, null,false)
+            .inflate(R.layout.alert_dialog_save_task_time_elapsed, null, false)
         dialog.setCancelable(false)
         val tvSave = view.findViewById<TextView>(R.id.tvSave)
         val tvNotSave = view.findViewById<TextView>(R.id.tvNotSave)
@@ -277,7 +306,7 @@ class TimeRunActivity : AppCompatActivity() {
                     if (status == Constants.STATUS_ANOTHER_TASK_ACTIVE) return
                     if (intent.hasExtra(Constants.ACTION_TIME_VALUE)) {
                         val intentExtra = intent.getStringExtra(Constants.ACTION_TIME_VALUE)
-                        timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE,0)
+                        timerSec = intent.getIntExtra(Constants.ACTION_TIME_VALUE, 0)
                         if (intentExtra == Constants.ACTION_TIMER_STOP) {
 
                         } else {

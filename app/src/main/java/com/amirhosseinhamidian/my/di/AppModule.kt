@@ -3,6 +3,7 @@ package com.amirhosseinhamidian.my.di
 import android.content.Context
 import androidx.room.Room
 import com.amirhosseinhamidian.my.data.db.DB
+import com.amirhosseinhamidian.my.data.repository.DataStoreImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,4 +23,8 @@ object AppModule {
             "Taskdb.db"
         ).build()
     }
+
+    @Singleton
+    @Provides
+    fun provideDataStoreRepository(@ApplicationContext context: Context)= DataStoreImpl(context)
 }

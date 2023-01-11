@@ -12,16 +12,28 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
+import android.util.Log
 import android.widget.Chronometer
 import androidx.annotation.RequiresApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.amirhosseinhamidian.my.R
+import com.amirhosseinhamidian.my.domain.model.DailyDetails
+import com.amirhosseinhamidian.my.domain.model.MidnightTime
+import com.amirhosseinhamidian.my.domain.model.Task
+import com.amirhosseinhamidian.my.domain.repository.MyDataStore
+import com.amirhosseinhamidian.my.domain.repository.TaskRepository
 import com.amirhosseinhamidian.my.presenter.timeRunScreen.TimeRunActivity
 import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.Date
+import com.amirhosseinhamidian.my.utils.DayChangedBroadcastReceiver
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
+import kotlin.properties.Delegates
 
-class TimerService : Service() {
+@AndroidEntryPoint
+class TimerService() : Service() {
 
     private val mBinder: IBinder = TimerBinder()
     private lateinit var chronometer: Chronometer
@@ -30,6 +42,12 @@ class TimerService : Service() {
     var timeFlow: MutableStateFlow<String> = MutableStateFlow("")
     private lateinit var notificationBuilder: Notification.Builder
     var timeSpent = 0L
+    private var elapsedMillis by Delegates.notNull<Long>()
+    lateinit var task: Task
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+    @Inject lateinit var taskRepository: TaskRepository
+    @Inject lateinit var myDataStore: MyDataStore
+    var midnightTimeSave = 0
 
     private var notificationReceiver: BroadcastReceiver =
         object : BroadcastReceiver() {
@@ -88,7 +106,7 @@ class TimerService : Service() {
     }
 
     private fun getTimestamp(): String {
-        val elapsedMillis = SystemClock.elapsedRealtime() - chronometer.base + timeSpent
+        elapsedMillis = SystemClock.elapsedRealtime() - chronometer.base + timeSpent
 
         val hours = (elapsedMillis / 3600000).toInt()
         val minutes = (elapsedMillis - hours * 3600000).toInt() / 60000
@@ -108,6 +126,7 @@ class TimerService : Service() {
         timeSpent = SystemClock.elapsedRealtime() - chronometer.base
         chronometer.stop()
         unregisterReceiver(notificationReceiver)
+        unregisterReceiver(dayChangedBroadcastReceiver)
     }
 
     private fun stopForegroundService() {
@@ -136,6 +155,7 @@ class TimerService : Service() {
         val notification: Notification = getNotification()
 
         registerReceiver(notificationReceiver, IntentFilter(Constants.ACTION_NOTIFICATION_KEY))
+        registerReceiver(dayChangedBroadcastReceiver,DayChangedBroadcastReceiver.getIntentFilter())
 
         // Notification ID cannot be 0.
         startForeground(Constants.NOTIFICATION_ID, notification)
@@ -203,5 +223,19 @@ class TimerService : Service() {
     inner class TimerBinder : Binder() {
         val service: TimerService
             get() = this@TimerService
+    }
+
+    private val dayChangedBroadcastReceiver = object : DayChangedBroadcastReceiver() {
+        override fun onChange() {
+            scope.launch {
+                midnightTimeSave = (elapsedMillis / 1000).toInt()
+                taskRepository.saveTimeInMidnight(DailyDetails(
+                    taskId = task.id!!,
+                    time = midnightTimeSave,
+                    date = Date.getYesterdayDate()
+                ))
+                myDataStore.saveMidnightTime(Date.getYesterdayDate(),midnightTimeSave)
+            }
+        }
     }
 }

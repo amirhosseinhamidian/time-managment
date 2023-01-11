@@ -42,16 +42,22 @@ interface TaskDao {
     @Insert(onConflict = REPLACE)
     suspend fun insertDailyDetails(dailyDetailsEntity: DailyDetailsEntity)
 
-    @Query("UPDATE daily_details_table SET time=:time WHERE taskId=:taskId")
-    suspend fun updateDailyDetails(taskId: Long, time: Int)
+    @Query("UPDATE daily_details_table SET time=:time WHERE taskId=:taskId AND date=:date")
+    suspend fun updateDailyDetails(taskId: Long, time: Int, date: String)
 
     @Query("SELECT time FROM daily_details_table WHERE date=:date AND taskId=:taskId")
     suspend fun checkDailyDetailIsExist(date: String , taskId: Long): Int
+
+    @Query("SELECT EXISTS (SELECT * FROM daily_details_table WHERE date=:date AND taskId=:taskId)")
+    suspend fun isDailyDateIsExist(date: String , taskId: Long): Boolean
 
     @Query("SELECT * FROM daily_details_table WHERE taskId=:taskId ORDER BY id DESC LIMIT :fewLastDay")
     suspend fun getDailyDetailsById(taskId: Long , fewLastDay: Int): List<DailyDetailsEntity>
 
     @Query("SELECT * FROM daily_details_table WHERE date=:date")
     suspend fun getTodayElapsedTime(date: String): List<DailyDetailsEntity>
+
+    @Query("SELECT time FROM daily_details_table WHERE date=:date AND taskId=:taskId")
+    suspend fun getDayTaskTime(date: String, taskId: Long): Int
     //endregion
 }

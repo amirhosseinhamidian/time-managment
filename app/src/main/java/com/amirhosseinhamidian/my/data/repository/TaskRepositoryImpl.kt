@@ -2,6 +2,7 @@ package com.amirhosseinhamidian.my.data.repository
 
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.amirhosseinhamidian.my.data.db.DB
 import com.amirhosseinhamidian.my.data.mapper.toDailyDetails
 import com.amirhosseinhamidian.my.data.mapper.toDailyDetailsEntity
@@ -11,6 +12,7 @@ import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository
 import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.Date
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -59,12 +61,26 @@ class TaskRepositoryImpl @Inject  constructor(
         return dao.insertDailyDetails(dailyDetails.toDailyDetailsEntity())
     }
 
-    override suspend fun updateDailyDetails(taskId: Long, time: Int) {
-        return dao.updateDailyDetails(taskId, time)
+    override suspend fun updateDailyDetails(taskId: Long, time: Int, date: String) {
+        return dao.updateDailyDetails(taskId, time, date)
     }
 
-    override suspend fun checkDailyDetailIsExist(taskId: Long): Int {
-        return dao.checkDailyDetailIsExist(getCurrentDate(), taskId)
+    override suspend fun checkDailyDetailIsExist(taskId: Long, dayStatus: Int): Int {
+        return when (dayStatus) {
+            Constants.CURRENT_DATE_STATUS -> {
+                dao.checkDailyDetailIsExist(Date.getCurrentDate(), taskId)
+            }
+            Constants.YESTERDAY_DATE_STATUS -> {
+                dao.checkDailyDetailIsExist(Date.getYesterdayDate(), taskId)
+            }
+            else -> {
+                dao.checkDailyDetailIsExist(Date.getCurrentDate(), taskId)
+            }
+        }
+    }
+
+    override suspend fun isDailyDateIsExist(taskId: Long, date: String): Boolean {
+        return dao.isDailyDateIsExist(date, taskId)
     }
 
     override suspend fun getDailyDetailsById(taskId: Long, fewLastDay: Int): List<DailyDetails> {
@@ -72,7 +88,7 @@ class TaskRepositoryImpl @Inject  constructor(
     }
 
     override suspend fun getTodayElapsedTime(): Int {
-        val list = dao.getTodayElapsedTime(getCurrentDate())
+        val list = dao.getTodayElapsedTime(Date.getCurrentDate())
         var time = 0
         list.forEach {
             time += it.time
@@ -80,11 +96,18 @@ class TaskRepositoryImpl @Inject  constructor(
         return time
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun getCurrentDate(): String {
-        val calendar: Calendar = Calendar.getInstance()
-        val sdf = SimpleDateFormat("yyyy-MM-dd")
-        return sdf.format(calendar.time)
+    override suspend fun saveTimeInMidnight(dailyDetails: DailyDetails) {
+        if (isDailyDateIsExist(dailyDetails.taskId, Date.getYesterdayDate())) {
+            dao.updateDailyDetails(
+                taskId = dailyDetails.taskId,
+                time = dailyDetails.time + getDayTaskTime(Date.getYesterdayDate(),dailyDetails.taskId),
+                date = Date.getYesterdayDate())
+        } else {
+            dao.insertDailyDetails(dailyDetails.toDailyDetailsEntity())
+        }
     }
 
+    override suspend fun getDayTaskTime(date: String, taskId: Long): Int {
+        return dao.getDayTaskTime(date,taskId)
+    }
 }

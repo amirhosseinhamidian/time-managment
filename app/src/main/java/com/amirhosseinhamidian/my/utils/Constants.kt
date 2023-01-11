@@ -28,4 +28,9 @@ object Constants {
     const val STATUS_ANY_TASK_ACTIVE = 3
     //endregion
 
+    //region date status
+    const val YESTERDAY_DATE_STATUS = 1
+    const val CURRENT_DATE_STATUS = 2
+    //endregion
+
 }
