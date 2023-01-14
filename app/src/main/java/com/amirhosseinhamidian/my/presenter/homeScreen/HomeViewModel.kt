@@ -1,4 +1,4 @@
-package com.amirhosseinhamidian.my.presenter.mainScreen
+package com.amirhosseinhamidian.my.presenter.homeScreen
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

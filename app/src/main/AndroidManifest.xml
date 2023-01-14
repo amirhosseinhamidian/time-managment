@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".BaseApp"
@@ -15,8 +15,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TimeManagment"
         tools:targetApi="31">
-        <receiver android:name=".service.NotificationBroadcastReceiver" android:exported="true" android:enabled="true"/>
-        <service android:name=".service.TimerService" android:exported="true" android:enabled="true"/>
+        <activity
+            android:name=".presenter.addTargetScreed.AddTargetActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
+        <receiver
+            android:name=".service.NotificationBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".service.TimerService"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
             android:name=".presenter.timeRunScreen.TimeRunActivity"
             android:exported="false">
@@ -32,7 +48,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".presenter.mainScreen.MainActivity"
+            android:name=".presenter.homeScreen.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

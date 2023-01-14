@@ -28,4 +28,8 @@ class CategoryRepositoryImpl @Inject  constructor(
     override suspend fun getCategoryById(id: Long): Category {
         return dao.getCategoryById(id).toCategory()
     }
+
+    override suspend fun isThereCategory(name: String): Boolean {
+        return dao.isThereCategory(name)
+    }
 }

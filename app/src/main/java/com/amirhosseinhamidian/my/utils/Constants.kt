@@ -33,4 +33,7 @@ object Constants {
     const val CURRENT_DATE_STATUS = 2
     //endregion
 
+    const val CURRENT_WEEK = 1
+    const val NEXT_WEEK = 2
+
 }

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
@@ -49,7 +48,7 @@ class AddEditActivity: AppCompatActivity() {
 
         setupRecyclerview()
         viewModel.getCategoryList().observe(this) {
-            categoryListAdapter.add(it)
+            categoryListAdapter.addToFirst(it)
             if (mode == MODE_EDIT) {
                 categoryListAdapter.selectCategory(taskEdit.category)
             }
@@ -107,7 +106,7 @@ class AddEditActivity: AppCompatActivity() {
             if (dialog.edtCategoryTitle.text.isNotEmpty()) {
                 val category = Category(name = dialog.edtCategoryTitle.text.toString())
                 viewModel.saveCategory(category = category)
-                categoryListAdapter.add(category)
+                categoryListAdapter.addToFirst(category)
             }
             dialog.dismiss()
         }

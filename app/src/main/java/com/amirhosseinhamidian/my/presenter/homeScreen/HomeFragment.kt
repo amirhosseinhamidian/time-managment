@@ -1,4 +1,4 @@
-package com.amirhosseinhamidian.my.presenter.mainScreen
+package com.amirhosseinhamidian.my.presenter.homeScreen
 
 import android.content.Intent
 import android.os.Bundle

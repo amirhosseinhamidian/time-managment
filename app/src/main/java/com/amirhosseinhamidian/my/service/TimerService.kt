@@ -12,13 +12,11 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
-import android.util.Log
 import android.widget.Chronometer
 import androidx.annotation.RequiresApi
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
-import com.amirhosseinhamidian.my.domain.model.MidnightTime
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.domain.repository.MyDataStore
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository

@@ -10,19 +10,20 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
-import com.amirhosseinhamidian.my.domain.model.Task
 
 class CategoryListAdapter(private val context: Context ,private val mList: ArrayList<Category>): RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
 
-    fun add(listData: List<Category>) {
+    var onItemClick: ((Category) -> Unit)? = null
+
+    fun addToFirst(listData: List<Category>) {
         mList.clear()
         mList.addAll(listData)
         notifyDataSetChanged()
     }
 
-    fun add(category: Category) {
-        mList.add(category)
-        notifyItemInserted(mList.size)
+    fun addToFirst(category: Category) {
+        mList.add(0,category)
+        notifyItemInserted(0)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,11 +34,6 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val category = mList[position]
         holder.tvCategory.text = category.name
-        holder.clHolder.setOnClickListener {
-            resetSelectedCategory()
-            category.isSelected = true
-            notifyDataSetChanged()
-        }
         if (category.isSelected) {
             holder.clHolder.setBackgroundResource(R.drawable.bg_button_stroke_orange)
             holder.tvCategory.setTextColor(ContextCompat.getColor(context,R.color.secondary))
@@ -51,7 +47,7 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
         return mList.size
     }
 
-    private fun resetSelectedCategory() {
+    fun resetSelectedCategory() {
         mList.forEach {
             it.isSelected = false
         }
@@ -75,8 +71,18 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
     }
 
 
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val tvCategory : TextView = itemView.findViewById(R.id.tvCategory)
         val clHolder : ConstraintLayout = itemView.findViewById(R.id.clHolder)
+
+        init {
+            itemView.setOnClickListener {
+                val category = mList[adapterPosition]
+                resetSelectedCategory()
+                category.isSelected = true
+                notifyDataSetChanged()
+                onItemClick?.invoke(category)
+            }
+        }
     }
 }

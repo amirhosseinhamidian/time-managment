@@ -178,9 +178,9 @@ class TimeRunActivity : AppCompatActivity() {
         view.ivClose.setOnClickListener {
             bottomSheet.dismiss()
         }
-        bottomSheet.setCancelable(true);
-        bottomSheet.setContentView(view);
-        bottomSheet.setCanceledOnTouchOutside(true);
+        bottomSheet.setCancelable(true)
+        bottomSheet.setContentView(view)
+        bottomSheet.setCanceledOnTouchOutside(true)
         bottomSheet.getWindow()!!.setBackgroundDrawable(
             ColorDrawable(
                 ContextCompat.getColor(
@@ -188,8 +188,8 @@ class TimeRunActivity : AppCompatActivity() {
                     R.color.transparent
                 )
             )
-        );
-        bottomSheet.show();
+        )
+        bottomSheet.show()
     }
 
     override fun onResume() {

@@ -1,6 +1,5 @@
 package com.amirhosseinhamidian.my.domain.repository
 
-import com.amirhosseinhamidian.my.domain.model.MidnightTime
 import kotlinx.coroutines.flow.Flow
 
 interface MyDataStore {
