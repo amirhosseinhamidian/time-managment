@@ -70,13 +70,16 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
         return Category(name = "")
     }
 
-    fun selectCategory(category: String) {
+    fun selectCategory(category: String): Category? {
+        var result: Category? = null
         for (item in mList) {
             if (category == item.name) {
                 item.isSelected = true
+                result = item
             }
         }
         notifyDataSetChanged()
+        return result
     }
 
     fun addDisableCategories(categoryTargetList: List<CategoryTarget>) {

@@ -132,6 +132,8 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                     view.rvSuggestion.adapter = categoryListAdapter
                     categoryListAdapter.onItemClick = { categorySelected ->
                         view.edtCategory.setText(categorySelected.name)
+                        view.colorSlider.selectColor(categorySelected.color!!)
+                        view.colorSlider.isEnabled = false
                     }
                     categoryListAdapter.addDisableCategories(categoryTargetList)
                 }
@@ -157,10 +159,15 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                     view.pbAddCategory.visibility = View.INVISIBLE
                     if (it) {
                         view.ivCategoryAdded.visibility = View.VISIBLE
+                        view.colorSlider.isEnabled = false
                         categoryListAdapter.resetSelectedCategory()
-                        categoryListAdapter.selectCategory(text.toString())
+                        val category = categoryListAdapter.selectCategory(text.toString())
+                        if (category != null) {
+                            view.colorSlider.selectColor(category.color!!)
+                        }
                     } else {
                         view.ivAddCategory.visibility = View.VISIBLE
+                        view.colorSlider.isEnabled = true
                         categoryListAdapter.resetSelectedCategory()
                         categoryListAdapter.notifyDataSetChanged()
                     }
@@ -176,13 +183,15 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                 view.pbAddCategory.visibility = View.VISIBLE
                 view.ivAddCategory.visibility = View.INVISIBLE
                 view.ivCategoryAdded.visibility = View.INVISIBLE
-                viewModel.addNewCategory(view.edtCategory.text.toString()).observe(this) {
+                viewModel.addNewCategory(view.edtCategory.text.toString(),view.colorSlider.selectedColor).observe(this) {
                     if (it >=0) {
+                        view.saHour.requestFocus()
                         view.tvErrorCategory.visibility = View.INVISIBLE
                         view.pbAddCategory.visibility = View.INVISIBLE
                         view.tvErrorCategory.visibility = View.INVISIBLE
                         view.ivCategoryAdded.visibility = View.VISIBLE
-                        val category = Category(id = it , name = view.edtCategory.text.toString())
+                        view.colorSlider.isEnabled = false
+                        val category = Category(id = it , name = view.edtCategory.text.toString(), color = view.colorSlider.selectedColor)
                         categoryListAdapter.addToFirst(category)
                         categoryListAdapter.selectCategory(category.name)
                     } else {

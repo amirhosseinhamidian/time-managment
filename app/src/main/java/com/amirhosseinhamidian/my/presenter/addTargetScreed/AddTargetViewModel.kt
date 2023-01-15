@@ -40,10 +40,10 @@ class AddTargetViewModel @Inject constructor(
         return result
     }
 
-    fun addNewCategory(categoryName: String): LiveData<Long> {
+    fun addNewCategory(categoryName: String, color: Int): LiveData<Long> {
         val result = MutableLiveData<Long>()
         viewModelScope.launch {
-            result.postValue(categoryRepository.insertCategory(Category(name = categoryName)))
+            result.postValue(categoryRepository.insertCategory(Category(name = categoryName, color = color)))
         }
         return result
     }

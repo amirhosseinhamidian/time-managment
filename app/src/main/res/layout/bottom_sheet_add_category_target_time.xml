@@ -147,6 +147,16 @@
             android:visibility="invisible"
             android:layout_marginTop="4dp"/>
 
+        <com.github.naz013.colorslider.ColorSlider
+            android:id="@+id/colorSlider"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="16dp"
+            app:cs_colors="@array/colors"
+            android:layout_below="@+id/tvErrorCategory"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSuggestion"
@@ -155,7 +165,7 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
             android:clipToPadding="false"
-            android:layout_below="@+id/tvErrorCategory" />
+            android:layout_below="@+id/colorSlider" />
 
     </RelativeLayout>
 
