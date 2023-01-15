@@ -18,12 +18,13 @@ import com.amirhosseinhamidian.my.data.db.entity.TaskEntity
     CategoryEntity::class,
     DailyDetailsEntity::class,
     CategoryTargetEntity::class],
-    version = 5,
+    version = 6,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2 , to = 3),
         AutoMigration(from = 3 , to = 4),
         AutoMigration(from = 4 , to = 5),
+        AutoMigration(from = 5 , to = 6),
     ]
 )
 @TypeConverters(Converters::class)

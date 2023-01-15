@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -13,6 +14,7 @@ import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
+import com.amirhosseinhamidian.my.utils.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add_edit.*
 import kotlinx.android.synthetic.main.new_category_dialog.*
@@ -102,13 +104,17 @@ class AddEditActivity: AppCompatActivity() {
         dialog.setCancelable(false)
         dialog.setContentView(R.layout.new_category_dialog)
         dialog.tvClose.setOnClickListener{dialog.dismiss()}
+
         dialog.tvConfirm.setOnClickListener {
             if (dialog.edtCategoryTitle.text.isNotEmpty()) {
-                val category = Category(name = dialog.edtCategoryTitle.text.toString())
+                hideKeyboard()
+                val category = Category(
+                    name = dialog.edtCategoryTitle.text.toString(),
+                    color = dialog.colorSlider.selectedColor)
                 viewModel.saveCategory(category = category)
                 categoryListAdapter.addToFirst(category)
+                dialog.dismiss()
             }
-            dialog.dismiss()
         }
         dialog.show()
     }

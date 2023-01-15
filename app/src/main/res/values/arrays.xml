@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="colors">
+        <item>@color/color1</item>
+        <item>@color/color2</item>
+        <item>@color/color3</item>
+        <item>@color/color4</item>
+        <item>@color/color5</item>
+        <item>@color/color6</item>
+        <item>@color/color7</item>
+        <item>@color/color8</item>
+        <item>@color/color9</item>
+        <item>@color/color10</item>
+        <item>@color/color11</item>
+        <item>@color/color12</item>
+        <item>@color/color13</item>
+        <item>@color/color14</item>
+        <item>@color/color15</item>
+        <item>@color/color16</item>
+        <item>@color/color17</item>
+        <item>@color/color18</item>
+        <item>@color/color19</item>
+        <item>@color/color20</item>
+    </integer-array>
+    <color name="color1">#D32F2F</color>
+    <color name="color2">#C2185B</color>
+    <color name="color3">#7B1FA2</color>
+    <color name="color4">#512DA8</color>
+    <color name="color5">#303F9F</color>
+    <color name="color6">#1976D2</color>
+    <color name="color7">#0288D1</color>
+    <color name="color8">#0097A7</color>
+    <color name="color9">#00796B</color>
+    <color name="color10">#388E3C</color>
+    <color name="color11">#689F38</color>
+    <color name="color12">#AFB42B</color>
+    <color name="color13">#FBC02D</color>
+    <color name="color14">#FFA000</color>
+    <color name="color15">#F57C00</color>
+    <color name="color16">#E64A19</color>
+    <color name="color17">#771A03</color>
+    <color name="color18">#1B5E20</color>
+    <color name="color19">#827717</color>
+    <color name="color20">#0D47A1</color>
+</resources>

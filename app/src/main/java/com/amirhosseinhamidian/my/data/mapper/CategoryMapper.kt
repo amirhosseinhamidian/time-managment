@@ -8,6 +8,7 @@ fun CategoryEntity.toCategory(): Category {
     return Category(
         id = id,
         name = name,
+        color = color,
     )
 }
 
@@ -15,6 +16,7 @@ fun Category.toCategoryEntity(): CategoryEntity {
     return CategoryEntity(
         id = id,
         name = name,
+        color = color,
     )
 }
 
