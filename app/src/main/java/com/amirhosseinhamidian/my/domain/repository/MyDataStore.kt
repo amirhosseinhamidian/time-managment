@@ -7,4 +7,7 @@ interface MyDataStore {
     fun getMidnightTime(dateAsKey: String): Flow<Int>
     suspend fun clearMidnightTime()
     fun isMidnightKeyStored(dateAsKey: String): Flow<Boolean>
+
+    suspend fun saveFreeTimeInWeek(startWeekDate: String, hourFree: Int)
+    fun getFreeTimeInWeek(startWeekDate: String): Flow<Int>
 }

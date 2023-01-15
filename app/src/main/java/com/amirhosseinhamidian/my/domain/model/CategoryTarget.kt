@@ -3,7 +3,7 @@ package com.amirhosseinhamidian.my.domain.model
 import java.io.Serializable
 
 data class CategoryTarget(
-    val id: Long? = null,
+    var id: Long? = null,
     val category: Category,
     val hourTarget: Int,
     val minuteTarget: Int,

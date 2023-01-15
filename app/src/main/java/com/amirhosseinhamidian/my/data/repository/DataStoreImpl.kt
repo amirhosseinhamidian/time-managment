@@ -36,4 +36,16 @@ class DataStoreImpl(private val context: Context): MyDataStore {
     override fun isMidnightKeyStored(dateAsKey: String): Flow<Boolean> = context.datastore.data.map {
         it.contains(intPreferencesKey(dateAsKey))
     }
+
+    override suspend fun saveFreeTimeInWeek(startWeekDate: String, hourFree: Int) {
+        val dataStoreKey = intPreferencesKey(startWeekDate)
+        context.datastore.edit {
+            it[dataStoreKey] = hourFree
+        }
+    }
+
+    override fun getFreeTimeInWeek(startWeekDate: String): Flow<Int> = context.datastore.data
+        .map {
+            it[intPreferencesKey(startWeekDate)]?:112
+        }
 }

@@ -70,6 +70,7 @@
            android:src="@drawable/ic_arrow_down"
            android:layout_centerVertical="true"
            android:rotation="180"
+           android:visibility="gone"
            android:layout_alignParentRight="true"/>
 
    </RelativeLayout>
@@ -186,6 +187,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_arrow_down"
             android:layout_centerVertical="true"
+            android:visibility="gone"
             android:layout_alignParentRight="true"/>
 
     </RelativeLayout>

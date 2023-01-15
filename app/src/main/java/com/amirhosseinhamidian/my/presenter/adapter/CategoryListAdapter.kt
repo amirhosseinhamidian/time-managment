@@ -10,12 +10,14 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
+import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 
 class CategoryListAdapter(private val context: Context ,private val mList: ArrayList<Category>): RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
 
+    private var categoryDisableList: List<CategoryTarget> = emptyList()
     var onItemClick: ((Category) -> Unit)? = null
 
-    fun addToFirst(listData: List<Category>) {
+    fun add(listData: List<Category>) {
         mList.clear()
         mList.addAll(listData)
         notifyDataSetChanged()
@@ -40,6 +42,13 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
         } else{
             holder.clHolder.setBackgroundResource(R.drawable.bg_stroke_white)
             holder.tvCategory.setTextColor(ContextCompat.getColor(context,R.color.white))
+        }
+        categoryDisableList.forEach {
+            if (category.name == it.category.name) {
+                holder.itemView.isEnabled = false
+                holder.tvCategory.setTextColor(ContextCompat.getColor(context,R.color.grayDark))
+                holder.clHolder.setBackgroundResource(R.drawable.bg_stroke_gray_dark)
+            }
         }
     }
 
@@ -68,6 +77,10 @@ class CategoryListAdapter(private val context: Context ,private val mList: Array
             }
         }
         notifyDataSetChanged()
+    }
+
+    fun addDisableCategories(categoryTargetList: List<CategoryTarget>) {
+        this.categoryDisableList = categoryTargetList
     }
 
 

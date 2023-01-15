@@ -6,5 +6,5 @@ interface CategoryTargetRepository {
     suspend fun insertCategoryTarget(categoryTarget: CategoryTarget): Long
     suspend fun updateCategoryTarget(categoryTarget: CategoryTarget)
     suspend fun deleteCategoryTarget(categoryTarget: CategoryTarget)
-    suspend fun getThisWeekCategoryTarget(): List<CategoryTarget>
+    suspend fun getWeekCategoryTarget(startDayWeek: String): List<CategoryTarget>
 }

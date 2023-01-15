@@ -48,7 +48,7 @@ class AddEditActivity: AppCompatActivity() {
 
         setupRecyclerview()
         viewModel.getCategoryList().observe(this) {
-            categoryListAdapter.addToFirst(it)
+            categoryListAdapter.add(it)
             if (mode == MODE_EDIT) {
                 categoryListAdapter.selectCategory(taskEdit.category)
             }

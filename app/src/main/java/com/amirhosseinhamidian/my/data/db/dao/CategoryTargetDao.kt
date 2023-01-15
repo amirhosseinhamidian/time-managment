@@ -20,6 +20,6 @@ interface CategoryTargetDao {
     @Delete
     suspend fun delete(categoryTargetEntity: CategoryTargetEntity)
 
-    @Query("SELECT * FROM category_target_table WHERE weekNumber = strftime('%W', 'now')")
-    suspend fun getThisWeekCategoryTarget(): List<CategoryTargetEntity>
+    @Query("SELECT * FROM category_target_table WHERE startDateTarget=:startDayWeek")
+    suspend fun getWeekCategoryTarget(startDayWeek: String): List<CategoryTargetEntity>
 }

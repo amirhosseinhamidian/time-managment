@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="32dp">
+    app:cardCornerRadius="32dp"
+    app:cardBackgroundColor="@color/transparentWhite">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_stroke_gray_normal">
+        android:orientation="vertical">
 
 
         <TextView
@@ -23,15 +23,13 @@
             android:textSize="18sp"
             android:gravity="center"
             android:layout_margin="1dp"
-
-            android:paddingVertical="8dp"
-            android:paddingHorizontal="16dp"
+            android:padding="16dp"
             android:textColor="@color/white" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/grayNormal"/>
+            android:background="@color/grayDark"/>
         
         <TextView
             android:id="@+id/tvTimeTarget"
@@ -40,6 +38,7 @@
             android:text="14h 30m"
             android:layout_gravity="center"
             android:textColor="@color/white"
+            android:padding="16dp"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_margin="8dp"/>

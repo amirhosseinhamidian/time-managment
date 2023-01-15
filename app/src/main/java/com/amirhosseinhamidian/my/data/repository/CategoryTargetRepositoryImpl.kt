@@ -24,7 +24,7 @@ class CategoryTargetRepositoryImpl @Inject constructor(
         return dao.delete(categoryTarget.toCategoryTargetEntity())
     }
 
-    override suspend fun getThisWeekCategoryTarget(): List<CategoryTarget> {
-        return dao.getThisWeekCategoryTarget().toCategoryTargetList()
+    override suspend fun getWeekCategoryTarget(startDayWeek: String): List<CategoryTarget> {
+        return dao.getWeekCategoryTarget(startDayWeek).toCategoryTargetList()
     }
 }

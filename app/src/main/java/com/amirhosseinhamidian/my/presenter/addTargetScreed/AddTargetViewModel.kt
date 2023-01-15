@@ -1,13 +1,11 @@
 package com.amirhosseinhamidian.my.presenter.addTargetScreed
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 import com.amirhosseinhamidian.my.domain.repository.CategoryRepository
 import com.amirhosseinhamidian.my.domain.repository.CategoryTargetRepository
+import com.amirhosseinhamidian.my.domain.repository.MyDataStore
 import com.amirhosseinhamidian.my.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddTargetViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
-    private val categoryTargetRepository: CategoryTargetRepository
+    private val categoryTargetRepository: CategoryTargetRepository,
+    private val dataStore: MyDataStore
 ): ViewModel() {
     private val calendar = Calendar.getInstance()
 
@@ -49,10 +48,12 @@ class AddTargetViewModel @Inject constructor(
         return result
     }
 
-    fun saveCategoryTarget(categoryTarget: CategoryTarget) {
+    fun saveCategoryTarget(categoryTarget: CategoryTarget): LiveData<Long> {
+        val result = MutableLiveData<Long>()
         viewModelScope.launch {
-            categoryTargetRepository.insertCategoryTarget(categoryTarget)
+            result.postValue(categoryTargetRepository.insertCategoryTarget(categoryTarget))
         }
+        return result
     }
 
     fun getNumberWeek(week: Int): Int {
@@ -85,4 +86,23 @@ class AddTargetViewModel @Inject constructor(
         calendar.time = Date()
         return result
     }
+
+    fun getTargetsWeek(startDayWeek: String): LiveData<List<CategoryTarget>> {
+        val result = MutableLiveData<List<CategoryTarget>>()
+        viewModelScope.launch {
+            result.postValue(categoryTargetRepository.getWeekCategoryTarget(startDayWeek))
+        }
+        return result
+    }
+
+    fun saveFreeTimeInWeek(startWeekDate: String, hourFree: Int) {
+        viewModelScope.launch {
+            dataStore.saveFreeTimeInWeek(startWeekDate,hourFree)
+        }
+    }
+
+    fun getFreeTimeInWeek(startWeekDate: String): LiveData<Int> {
+        return dataStore.getFreeTimeInWeek(startWeekDate).asLiveData()
+    }
+
 }

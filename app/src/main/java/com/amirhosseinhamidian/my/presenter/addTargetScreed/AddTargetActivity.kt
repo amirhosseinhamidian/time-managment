@@ -1,6 +1,7 @@
 package com.amirhosseinhamidian.my.presenter.addTargetScreed
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -11,8 +12,10 @@ import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
@@ -20,19 +23,24 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
+import com.amirhosseinhamidian.my.presenter.adapter.CategoryTargetAdapter
 import com.amirhosseinhamidian.my.utils.Constants
 import com.amirhosseinhamidian.my.utils.hideKeyboard
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -40,26 +48,38 @@ import com.ssarcseekbar.app.segmented.SegmentedArc
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add_target.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_category_target_time.view.*
+import kotlinx.android.synthetic.main.max_time_free_in_week_dialog.*
+import kotlinx.android.synthetic.main.new_category_dialog.*
+import kotlinx.android.synthetic.main.new_category_dialog.tvClose
+import kotlinx.android.synthetic.main.new_category_dialog.tvConfirm
 
 @AndroidEntryPoint
-class AddTargetActivity : AppCompatActivity() {
+class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
     private val viewModel: AddTargetViewModel by viewModels()
     private lateinit var categoryListAdapter: CategoryListAdapter
     private var weekStatus = Constants.CURRENT_WEEK
-    private val freeTime = 112
+    private lateinit var categoryTargetAdapter: CategoryTargetAdapter
+    private var freeTime = 112
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_target)
-        setupChartView()
+        ivBack.setOnClickListener {
+            onBackPressed()
+        }
         fabAddCategory.setOnClickListener {
             showAddCategoryTargetTimeBottomSheet()
         }
 
         setWeekDateView(Constants.CURRENT_WEEK)
         setupWeekSpinner()
+        setupRecyclerView()
+    }
 
-        setDataChart(listOf(30f,15.5f,16.25f));
+    private fun setupRecyclerView() {
+        rvCategory.layoutManager = GridLayoutManager(this,2)
+        categoryTargetAdapter = CategoryTargetAdapter(arrayListOf())
+        rvCategory.adapter = categoryTargetAdapter
     }
 
     private fun setupWeekSpinner() {
@@ -73,12 +93,19 @@ class AddTargetActivity : AppCompatActivity() {
                     0 -> setWeekDateView(Constants.CURRENT_WEEK)
                     1 -> setWeekDateView(Constants.NEXT_WEEK)
                 }
+                viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus)).observe(this@AddTargetActivity) {
+                    categoryTargetAdapter.add(it)
+                }
+                viewModel.getFreeTimeInWeek(viewModel.getStartDateWeek(weekStatus)).observe(this@AddTargetActivity) {
+                    freeTime = it
+                    setDataChart(listOf(30f,15.5f,16.25f));
+                    setupChartView()
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
-
         }
     }
 
@@ -86,6 +113,7 @@ class AddTargetActivity : AppCompatActivity() {
     private fun setWeekDateView(week: Int) {
         tvDatePeriod.text = viewModel.getStartDateWeek(week) + " - " + viewModel.getEndDateWeek(week)
         tvNumWeek.text = "Week" + viewModel.getNumberWeek(week)
+        weekStatus = week
     }
 
     private fun showAddCategoryTargetTimeBottomSheet() {
@@ -97,12 +125,15 @@ class AddTargetActivity : AppCompatActivity() {
         //region setup suggestion recyclerview
         viewModel.getCategoryList().observe(this) { categoryList ->
             if (categoryList.isNotEmpty()) {
-                view.rvSuggestion.visibility = View.VISIBLE
-                view.rvSuggestion.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
-                categoryListAdapter = CategoryListAdapter(this, categoryList as ArrayList<Category>)
-                view.rvSuggestion.adapter = categoryListAdapter
-                categoryListAdapter.onItemClick = { categorySelected ->
-                    view.edtCategory.setText(categorySelected.name)
+                viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus)).observe(this) { categoryTargetList ->
+                    view.rvSuggestion.visibility = View.VISIBLE
+                    view.rvSuggestion.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
+                    categoryListAdapter = CategoryListAdapter(this, categoryList as ArrayList<Category>)
+                    view.rvSuggestion.adapter = categoryListAdapter
+                    categoryListAdapter.onItemClick = { categorySelected ->
+                        view.edtCategory.setText(categorySelected.name)
+                    }
+                    categoryListAdapter.addDisableCategories(categoryTargetList)
                 }
             }
         }
@@ -135,7 +166,6 @@ class AddTargetActivity : AppCompatActivity() {
                     }
                 }
             }
-
         })
         //endregion
 
@@ -211,7 +241,7 @@ class AddTargetActivity : AppCompatActivity() {
 
         view.btSave.setOnClickListener {
             if (categoryListAdapter.getCategorySelected().name.isNotEmpty()) {
-                viewModel.saveCategoryTarget(CategoryTarget(
+                val newCategoryTarget = CategoryTarget(
                     category = categoryListAdapter.getCategorySelected(),
                     hourTarget = view.saHour.getSegmentedProgress(),
                     minuteTarget = view.saMinute.getSegmentedProgress() * 5,
@@ -219,7 +249,14 @@ class AddTargetActivity : AppCompatActivity() {
                     startDateTarget = viewModel.getStartDateWeek(weekStatus),
                     endDateTarget = viewModel.getEndDateWeek(weekStatus),
                     createAt = System.currentTimeMillis()
-                ))
+                )
+                viewModel.saveCategoryTarget(newCategoryTarget).observe(this) {
+                    if (it>=0) {
+                        newCategoryTarget.id = it
+                        categoryTargetAdapter.addToFirst(newCategoryTarget)
+                    }
+                }
+                bottomSheet.dismiss()
             } else {
                 Toast.makeText(this,"Please select a category.",Toast.LENGTH_SHORT).show()
             }
@@ -248,6 +285,7 @@ class AddTargetActivity : AppCompatActivity() {
 
 //        pieChartView.setCenterTextTypeface(tfLight)
         pieChartView.centerText = generateCenterSpannableText()
+        pieChartView.setOnChartValueSelectedListener(this)
 
         pieChartView.isDrawHoleEnabled = true
         pieChartView.setHoleColor(Color.TRANSPARENT)
@@ -294,6 +332,25 @@ class AddTargetActivity : AppCompatActivity() {
 
     }
 
+    private fun showEditMaxTimeFreeInWeekDialog() {
+        val dialog = Dialog(this, androidx.appcompat.R.style.Theme_AppCompat_Dialog)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.max_time_free_in_week_dialog)
+        dialog.edtFreeHour.setText(freeTime.toString())
+        dialog.tvClose.setOnClickListener{dialog.dismiss()}
+        dialog.tvConfirm.setOnClickListener {
+            if (dialog.edtFreeHour.text.isNotEmpty()) {
+                freeTime = dialog.edtFreeHour.text.toString().toInt()
+                viewModel.saveFreeTimeInWeek(viewModel.getStartDateWeek(weekStatus),freeTime)
+                pieChartView.centerText = generateCenterSpannableText()
+            }
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
     private fun setDataChart(values: List<Float>) {
         val entries: ArrayList<PieEntry> = ArrayList()
 
@@ -306,7 +363,7 @@ class AddTargetActivity : AppCompatActivity() {
                 )
             )
         }
-        val dataSet = PieDataSet(entries, "Election Results")
+        val dataSet = PieDataSet(entries, "")
         dataSet.setDrawIcons(false)
         dataSet.sliceSpace = 3f
         dataSet.iconsOffset = MPPointF(0f, 40f)
@@ -340,6 +397,13 @@ class AddTargetActivity : AppCompatActivity() {
         s.setSpan(RelativeSizeSpan(.8f), freeTime.toString().length + 6, s.length, 0)
         s.setSpan(StyleSpan(Typeface.NORMAL), freeTime.toString().length + 6, s.length, 0)
         return s
+    }
+
+    override fun onValueSelected(e: Entry?, h: Highlight?) {
+        showEditMaxTimeFreeInWeekDialog()
+    }
+
+    override fun onNothingSelected() {
     }
 
 }
