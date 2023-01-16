@@ -15,12 +15,12 @@
             android:id="@+id/tvTaskCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Change Time Free In Week"
+            android:layout_marginVertical="16dp"
+            android:layout_marginStart="16dp"
+            android:text="Change Free Time In Week (Hour)"
+            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginStart="16dp"
-            android:layout_marginVertical="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,34 +28,96 @@
             android:id="@+id/view"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#26242B"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/tvTaskCategory"/>
+            android:background="#26242B"
+            app:layout_constraintTop_toBottomOf="@+id/tvTaskCategory" />
 
-        <EditText
-            android:id="@+id/edtFreeHour"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/llDedicatedTime"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="48dp"
-            android:layout_marginBottom="48dp"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_box"
-            android:textColor="@color/white"
-            android:textColorHint="#7C7C7C"
-            android:textSize="18sp"
-            android:inputType="number"
-            android:hint="Enter Hours In Week"/>
+            android:gravity="center"
+            android:orientation="vertical"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
+            app:layout_constraintEnd_toStartOf="@+id/llSleepTime"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp"
+                android:text="Dedicated time"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:text="(weekly)"
+                android:textColor="@color/grayNormal"
+                android:textSize="12sp" />
+
+            <NumberPicker
+                android:id="@+id/npDedicatedTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:theme="@style/NumberPickerText"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llSleepTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="48dp"
+            android:gravity="center"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/llDedicatedTime"
+            app:layout_constraintTop_toBottomOf="@+id/view">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp"
+                android:gravity="center"
+                android:text="Amount sleep"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:text="(daily)"
+                android:textColor="@color/grayNormal"
+                android:textSize="12sp" />
+
+            <NumberPicker
+                android:id="@+id/npAmountSleep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:theme="@style/NumberPickerText"/>
+        </LinearLayout>
 
         <View
             android:id="@+id/view2"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#26242B"
             android:layout_marginTop="48dp"
-            app:layout_constraintTop_toBottomOf="@+id/edtFreeHour"/>
+            android:background="#26242B"
+            app:layout_constraintTop_toBottomOf="@+id/llDedicatedTime" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -69,31 +131,31 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:foreground="?selectableItemBackgroundBorderless"
+                android:gravity="center"
+                android:paddingVertical="16dp"
                 android:text="Confirm"
                 android:textColor="#C62828"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:foreground="?selectableItemBackgroundBorderless"
-                android:paddingVertical="16dp"/>
+                android:textStyle="bold" />
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#26242B"/>
+                android:background="#26242B" />
 
             <TextView
                 android:id="@+id/tvClose"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:foreground="?selectableItemBackgroundBorderless"
+                android:gravity="center"
+                android:paddingVertical="16dp"
                 android:text="Close"
                 android:textColor="#B4B4B4"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:foreground="?selectableItemBackgroundBorderless"
-                android:paddingVertical="16dp"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

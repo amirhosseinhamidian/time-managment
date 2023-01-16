@@ -7,6 +7,7 @@ data class CategoryTarget(
     val category: Category,
     val hourTarget: Int,
     val minuteTarget: Int,
+    val totalTimeTargetInSec:Int? = null,
     val startDateTarget: String,
     val endDateTarget: String,
     val weekNumber: Int,

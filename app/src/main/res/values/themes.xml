@@ -21,4 +21,8 @@
     <style name="TutorialBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bg_bottom_sheet</item>
     </style>
+
+    <style name="NumberPickerText">
+        <item name="android:textSize">18sp</item>
+    </style>
 </resources>

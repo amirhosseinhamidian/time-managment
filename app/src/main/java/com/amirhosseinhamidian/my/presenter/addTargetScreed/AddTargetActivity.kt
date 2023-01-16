@@ -19,6 +19,7 @@ import android.view.Window
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
+import com.amirhosseinhamidian.my.domain.model.ChartValue
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryTargetAdapter
 import com.amirhosseinhamidian.my.utils.Constants
@@ -41,7 +43,6 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.utils.MPPointF
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.ssarcseekbar.app.segmented.SegmentedArc
@@ -52,6 +53,7 @@ import kotlinx.android.synthetic.main.max_time_free_in_week_dialog.*
 import kotlinx.android.synthetic.main.new_category_dialog.*
 import kotlinx.android.synthetic.main.new_category_dialog.tvClose
 import kotlinx.android.synthetic.main.new_category_dialog.tvConfirm
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
@@ -60,6 +62,9 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
     private var weekStatus = Constants.CURRENT_WEEK
     private lateinit var categoryTargetAdapter: CategoryTargetAdapter
     private var freeTime = 112
+    private var sleepTime = 8f
+    private var totalTimeTargeted = 0
+    private var listDataChart = arrayListOf<ChartValue>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +74,10 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         }
         fabAddCategory.setOnClickListener {
             showAddCategoryTargetTimeBottomSheet()
+        }
+
+        viewModel.getSleepTimePerDay().observe(this) {
+            sleepTime = it
         }
 
         setWeekDateView(Constants.CURRENT_WEEK)
@@ -93,13 +102,20 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                     0 -> setWeekDateView(Constants.CURRENT_WEEK)
                     1 -> setWeekDateView(Constants.NEXT_WEEK)
                 }
+                totalTimeTargeted = 0
                 viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus)).observe(this@AddTargetActivity) {
                     categoryTargetAdapter.add(it)
+                    it.forEach {
+                        totalTimeTargeted += it.totalTimeTargetInSec?: 0
+                    }
                 }
                 viewModel.getFreeTimeInWeek(viewModel.getStartDateWeek(weekStatus)).observe(this@AddTargetActivity) {
                     freeTime = it
-                    setDataChart(listOf(30f,15.5f,16.25f));
-                    setupChartView()
+                    viewModel.getChartValues(viewModel.getStartDateWeek(weekStatus),freeTime).observe(this@AddTargetActivity) { list ->
+                        listDataChart.addAll(list)
+                        setupChartView()
+                        setDataChart(list);
+                    }
                 }
             }
 
@@ -123,13 +139,15 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         //region select category
 
         //region setup suggestion recyclerview
+        view.rvSuggestion.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
+        categoryListAdapter = CategoryListAdapter(this, arrayListOf())
+        view.rvSuggestion.adapter = categoryListAdapter
+
         viewModel.getCategoryList().observe(this) { categoryList ->
             if (categoryList.isNotEmpty()) {
                 viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus)).observe(this) { categoryTargetList ->
                     view.rvSuggestion.visibility = View.VISIBLE
-                    view.rvSuggestion.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
-                    categoryListAdapter = CategoryListAdapter(this, categoryList as ArrayList<Category>)
-                    view.rvSuggestion.adapter = categoryListAdapter
+                    categoryListAdapter.add(categoryList)
                     categoryListAdapter.onItemClick = { categorySelected ->
                         view.edtCategory.setText(categorySelected.name)
                         view.colorSlider.selectColor(categorySelected.color!!)
@@ -208,12 +226,16 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
         //endregion
 
+        val maxSecondTarget = (168 - sleepTime*7) * 3600 - totalTimeTargeted
+        val maxHour : Int = (maxSecondTarget / 3600).toInt()
+        val maxMin : Int = (maxSecondTarget / 60).toInt()
+
         //region select time
 
         //region hour
         view.saHour.setMin(0)
-        view.saHour.setMax(112)
-        view.saHour.setSegmentedProgress(10)
+        view.saHour.setMax(maxHour)
+        view.saHour.setSegmentedProgress(0)
         view.saHour.setOnProgressChangedListener(object : SegmentedArc.onProgressChangedListener {
             override fun onProgressChanged(progress: Int) {
                 view.tvHour.text = "%02d".format(progress)
@@ -222,38 +244,47 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         //endregion
 
         //region minute
-
-        //endregion
         var minute = 0
-        view.saMinute.setMax(11)
-        view.saMinute.setMin(0)
+        if (maxMin >= 55){
+            view.saMinute.setMax(12)
+        } else {
+            view.saMinute.setMax(maxMin/5 + 1)
+        }
+        view.saMinute.setMin(1)
+        view.saMinute.setSegmentedProgress(0)
         view.saMinute.setOnProgressChangedListener(object : SegmentedArc.onProgressChangedListener {
             override fun onProgressChanged(progress: Int) {
                 when(progress) {
-                    0 -> minute = 0
-                    1 -> minute = 5
-                    2 -> minute = 10
-                    3 -> minute = 15
-                    4 -> minute = 20
-                    5 -> minute = 25
-                    6 -> minute = 30
-                    7 -> minute = 35
-                    8 -> minute = 40
-                    9 -> minute = 45
-                    10 -> minute = 50
-                    11 -> minute = 55
+                    1 -> minute = 0
+                    2 -> minute = 5
+                    3 -> minute = 10
+                    4 -> minute = 15
+                    5 -> minute = 20
+                    6 -> minute = 25
+                    7 -> minute = 30
+                    8 -> minute = 35
+                    9 -> minute = 40
+                    10 -> minute = 45
+                    11 -> minute = 50
+                    12 -> minute = 55
                 }
                 view.tvMinute.text = "%02d".format(minute)
             }
         })
         //endregion
 
+        //endregion
+
         view.btSave.setOnClickListener {
             if (categoryListAdapter.getCategorySelected().name.isNotEmpty()) {
+                val hourTarget = view.saHour.getSegmentedProgress()
+                val minuteTarget = view.saMinute.getSegmentedProgress() * 5
+                val totalTimeTargetInSec = hourTarget * 3600 + minuteTarget * 60
                 val newCategoryTarget = CategoryTarget(
                     category = categoryListAdapter.getCategorySelected(),
-                    hourTarget = view.saHour.getSegmentedProgress(),
-                    minuteTarget = view.saMinute.getSegmentedProgress() * 5,
+                    hourTarget = hourTarget,
+                    minuteTarget = minuteTarget,
+                    totalTimeTargetInSec = totalTimeTargetInSec,
                     weekNumber = viewModel.getNumberWeek(weekStatus),
                     startDateTarget = viewModel.getStartDateWeek(weekStatus),
                     endDateTarget = viewModel.getEndDateWeek(weekStatus),
@@ -262,7 +293,11 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                 viewModel.saveCategoryTarget(newCategoryTarget).observe(this) {
                     if (it>=0) {
                         newCategoryTarget.id = it
+                        totalTimeTargeted += newCategoryTarget.totalTimeTargetInSec ?:0
                         categoryTargetAdapter.addToFirst(newCategoryTarget)
+                        val chartData = ChartValue(newCategoryTarget.totalTimeTargetInSec!!.toFloat() , newCategoryTarget.category.color!!)
+                        listDataChart.add(chartData)
+                        setDataChart(listDataChart)
                     }
                 }
                 bottomSheet.dismiss()
@@ -287,20 +322,15 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
     private fun setupChartView() {
         pieChartView.setUsePercentValues(true)
-        pieChartView.description.isEnabled = false
         pieChartView.setExtraOffsets(5f, 10f, 5f, 5f)
 
         pieChartView.dragDecelerationFrictionCoef = 0.95f
 
-//        pieChartView.setCenterTextTypeface(tfLight)
         pieChartView.centerText = generateCenterSpannableText()
         pieChartView.setOnChartValueSelectedListener(this)
 
         pieChartView.isDrawHoleEnabled = true
         pieChartView.setHoleColor(Color.TRANSPARENT)
-
-//        pieChartView.setTransparentCircleColor(Color.WHITE)
-//        pieChartView.setTransparentCircleAlpha(110)
 
         pieChartView.holeRadius = 54f
         pieChartView.transparentCircleRadius = 56f
@@ -308,28 +338,12 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         pieChartView.setDrawCenterText(true)
 
         pieChartView.rotationAngle = 0f
-        // enable rotation of the chart by touch
-        // enable rotation of the chart by touch
         pieChartView.isRotationEnabled = true
         pieChartView.isHighlightPerTapEnabled = true
 
-        // pieChartView.setUnit(" €");
-        // pieChartView.setDrawUnitsInChart(true);
-
-        // add a selection listener
-
-        // pieChartView.setUnit(" €");
-        // pieChartView.setDrawUnitsInChart(true);
-
-        // add a selection listener
-//        pieChartView.setOnChartValueSelectedListener(this)
-
-
 
         pieChartView.animateY(1400, Easing.EaseInOutQuad)
-        // chart.spin(2000, 0, 360);
 
-        // chart.spin(2000, 0, 360);
         val l: Legend = pieChartView.legend
         l.verticalAlignment = Legend.LegendVerticalAlignment.TOP
         l.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
@@ -347,30 +361,63 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.setCancelable(false)
         dialog.setContentView(R.layout.max_time_free_in_week_dialog)
-        dialog.edtFreeHour.setText(freeTime.toString())
+
+        //region sleep time
+        val sleepTimesList = arrayOf("5.0","5.5","6.0","6.5","7.0","7.5","8.0","8.5","9.0","9.5","10.0","10.5","11.0")
+        dialog.npAmountSleep.maxValue = sleepTimesList.size -1
+        dialog.npAmountSleep.minValue = 0
+        dialog.npAmountSleep.displayedValues = sleepTimesList
+        dialog.npAmountSleep.value = sleepTimesList.indexOf(sleepTime.toString())
+        dialog.npAmountSleep.setOnValueChangedListener { numberPicker, before, after ->
+            val totalWeeklyTimes = sleepTimesList[after].toFloat() * 7 + dialog.npDedicatedTime.value
+            if (totalWeeklyTimes > 168) {
+                dialog.npDedicatedTime.value = (168 - sleepTimesList[after].toFloat() * 7).toInt()
+            }
+        }
+        //endregion
+
+        //region dedicated time
+        dialog.npDedicatedTime.maxValue = 133
+        dialog.npDedicatedTime.minValue = 91
+        dialog.npDedicatedTime.value = freeTime
+        dialog.npDedicatedTime.setOnValueChangedListener { numberPicker, before, after ->
+            val totalWeeklyTimes = after + sleepTimesList[dialog.npAmountSleep.value].toFloat()*7
+            if (totalWeeklyTimes > 168) {
+                dialog.npAmountSleep.value -= 1
+            }
+        }
+        //endregion
+
         dialog.tvClose.setOnClickListener{dialog.dismiss()}
         dialog.tvConfirm.setOnClickListener {
-            if (dialog.edtFreeHour.text.isNotEmpty()) {
-                freeTime = dialog.edtFreeHour.text.toString().toInt()
+            val totalWeeklyTime = dialog.npDedicatedTime.value + sleepTimesList[dialog.npAmountSleep.value].toFloat()*7
+            if(totalWeeklyTime > 168) {
+                Toast.makeText(this,"The maximum number of hours per week is 168. Please check your time.", Toast.LENGTH_LONG).show()
+            }else {
+                freeTime = dialog.npDedicatedTime.value
+                sleepTime = sleepTimesList[dialog.npAmountSleep.value].toFloat()
                 viewModel.saveFreeTimeInWeek(viewModel.getStartDateWeek(weekStatus),freeTime)
+                viewModel.saveAmountSleepTimePerDay(sleepTime)
                 pieChartView.centerText = generateCenterSpannableText()
+                dialog.dismiss()
             }
-            dialog.dismiss()
         }
         dialog.show()
     }
 
-    private fun setDataChart(values: List<Float>) {
+    private fun setDataChart(values: List<ChartValue>) {
         val entries: ArrayList<PieEntry> = ArrayList()
+        val colors: ArrayList<Int> = ArrayList()
 
         // NOTE: The order of the entries when being added to the entries array determines their position around the center of
         // the chart.
         for (value in values) {
             entries.add(
                 PieEntry(
-                    value
+                    value.value
                 )
             )
+            colors.add(value.color)
         }
         val dataSet = PieDataSet(entries, "")
         dataSet.setDrawIcons(false)
@@ -378,11 +425,7 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         dataSet.iconsOffset = MPPointF(0f, 40f)
         dataSet.selectionShift = 5f
 
-        // add a lot of colors
-        val colors: ArrayList<Int> = ArrayList()
-        colors.add(ColorTemplate.rgb("#512DA8"))
-        colors.add(ColorTemplate.rgb("#1976D2"))
-        colors.add(ColorTemplate.rgb("#C2185B"))
+
         dataSet.colors = colors
         //dataSet.setSelectionShift(0f);
         val data = PieData(dataSet)
@@ -392,19 +435,20 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 //        data.setValueTypeface(tfLight)
         pieChartView.data = data
 
+        pieChartView.description = null
         // undo all highlights
         pieChartView.highlightValues(null)
         pieChartView.invalidate()
     }
 
     private fun generateCenterSpannableText(): SpannableString {
-        val s = SpannableString("${freeTime}h Free\nTab to change")
-        s.setSpan(RelativeSizeSpan(1.9f), 0, freeTime.toString().length + 6, 0)
-        s.setSpan(ForegroundColorSpan(Color.WHITE), 0, freeTime.toString().length + 6 , 0)
-        s.setSpan(StyleSpan(Typeface.BOLD), 0, freeTime.toString().length + 6, 0)
-        s.setSpan(ForegroundColorSpan(ContextCompat.getColor(this,R.color.grayNormal)), freeTime.toString().length + 6, s.length, 0)
-        s.setSpan(RelativeSizeSpan(.8f), freeTime.toString().length + 6, s.length, 0)
-        s.setSpan(StyleSpan(Typeface.NORMAL), freeTime.toString().length + 6, s.length, 0)
+        val s = SpannableString("${freeTime} Hour\nWake up time this week \n\n Tab to change")
+        s.setSpan(RelativeSizeSpan(1.8f), 0, freeTime.toString().length + 5, 0)
+        s.setSpan(ForegroundColorSpan(Color.WHITE), 0, freeTime.toString().length + 5 , 0)
+        s.setSpan(StyleSpan(Typeface.BOLD), 0, freeTime.toString().length + 5, 0)
+        s.setSpan(ForegroundColorSpan(ContextCompat.getColor(this,R.color.grayNormal)), freeTime.toString().length + 5, s.length, 0)
+        s.setSpan(RelativeSizeSpan(.8f), freeTime.toString().length + 5, s.length, 0)
+        s.setSpan(StyleSpan(Typeface.NORMAL), freeTime.toString().length + 5, s.length, 0)
         return s
     }
 
