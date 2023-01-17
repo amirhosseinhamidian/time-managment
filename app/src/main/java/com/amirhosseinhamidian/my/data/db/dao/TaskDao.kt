@@ -13,7 +13,7 @@ import com.amirhosseinhamidian.my.domain.model.DailyDetails
 
 @Dao
 interface TaskDao {
-
+    //region tasks
     @Insert(onConflict = REPLACE)
     suspend fun insert(taskEntity: TaskEntity)
 
@@ -37,6 +37,11 @@ interface TaskDao {
 
     @Query("SELECT id From task_table WHERE task_status=:status")
     suspend fun getRunningTaskIdIfExists(status: Int): Long
+
+    @Query("SELECT COUNT(id) FROM task_table WHERE category=:categoryName")
+    suspend fun getNumberTasksInCategory(categoryName: String): Int
+
+    //endregion
 
     //region daily details
     @Insert(onConflict = REPLACE)

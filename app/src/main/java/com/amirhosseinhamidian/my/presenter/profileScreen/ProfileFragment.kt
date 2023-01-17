@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.amirhosseinhamidian.my.R
+import com.amirhosseinhamidian.my.presenter.adapter.CategoryManagerAdapter
 import com.amirhosseinhamidian.my.presenter.addTargetScreed.AddTargetActivity
+import com.amirhosseinhamidian.my.presenter.categoryManager.CategoryManagerActivity
 import kotlinx.android.synthetic.main.fragment_profile.*
 
 class ProfileFragment : Fragment() {
@@ -23,6 +25,11 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         llAddTarget.setOnClickListener {
             val intent = Intent(requireContext(),AddTargetActivity::class.java)
+            requireContext().startActivity(intent)
+        }
+
+        llCategoryManager.setOnClickListener {
+            val intent = Intent(requireContext(),CategoryManagerActivity::class.java)
             requireContext().startActivity(intent)
         }
     }

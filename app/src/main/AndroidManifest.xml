@@ -16,6 +16,13 @@
         android:theme="@style/Theme.TimeManagment"
         tools:targetApi="31">
         <activity
+            android:name=".presenter.categoryManager.CategoryManagerActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".presenter.addTargetScreed.AddTargetActivity"
             android:exported="false">
             <meta-data

@@ -110,4 +110,8 @@ class TaskRepositoryImpl @Inject  constructor(
     override suspend fun getDayTaskTime(date: String, taskId: Long): Int {
         return dao.getDayTaskTime(date,taskId)
     }
+
+    override suspend fun getNumberTasksInCategory(categoryName: String): Int {
+        return dao.getNumberTasksInCategory(categoryName)
+    }
 }

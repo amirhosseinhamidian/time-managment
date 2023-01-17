@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="32dp"
+    app:cardBackgroundColor="@color/transparentWhite">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp">
+
+            <View
+                android:id="@+id/vColor"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/circle_gray_dark"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/tvCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Android"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:padding="16dp"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grayDark"/>
+
+        <TextView
+            android:id="@+id/tvNumTasks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Tasks: 8"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:padding="16dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_margin="8dp"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

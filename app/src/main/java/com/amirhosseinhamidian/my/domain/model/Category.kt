@@ -4,5 +4,6 @@ data class Category(
     val id: Long? = null,
     val name: String,
     val color: Int? = 0,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+    var numberTasks: Int = 0
 )
