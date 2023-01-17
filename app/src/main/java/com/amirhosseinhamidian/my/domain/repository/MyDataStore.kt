@@ -8,9 +8,6 @@ interface MyDataStore {
     suspend fun clearMidnightTime()
     fun isMidnightKeyStored(dateAsKey: String): Flow<Boolean>
 
-    suspend fun saveFreeTimeInWeek(startWeekDate: String, hourFree: Int)
-    fun getFreeTimeInWeek(startWeekDate: String): Flow<Int>
-
     suspend fun saveAmountSleepTimePerDay(sleepTime: Float)
     fun getSleepTimePerDay(): Flow<Float>
 }

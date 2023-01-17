@@ -9,6 +9,7 @@ import com.amirhosseinhamidian.my.domain.repository.CategoryRepository
 import com.amirhosseinhamidian.my.domain.repository.CategoryTargetRepository
 import com.amirhosseinhamidian.my.domain.repository.MyDataStore
 import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.DayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.DateFormat
@@ -105,31 +106,36 @@ class AddTargetViewModel @Inject constructor(
         return result
     }
 
-    fun saveFreeTimeInWeek(startWeekDate: String, hourFree: Int) {
-        viewModelScope.launch {
-            dataStore.saveFreeTimeInWeek(startWeekDate, hourFree)
+    fun getTotalTimeLeftInWeek(sleepTime: Float ,week : Int): Int {
+        var totalWeekUpTimeInSec = 0f
+        if (week == Constants.CURRENT_WEEK) {
+            val cal = Calendar.getInstance()
+            cal.firstDayOfWeek = Calendar.SATURDAY
+            val currentDay = DayOfWeek.getDayNumber(cal.get(Calendar.DAY_OF_WEEK),Constants.FIRST_DAY_SATURDAY)
+            val daysPast = currentDay - DayOfWeek.getDayNumber(cal.firstDayOfWeek,Constants.FIRST_DAY_SATURDAY)
+            val daysNext = 7 - daysPast
+            totalWeekUpTimeInSec = ((168 - daysPast*24 - sleepTime*daysNext) * 3600)
+        }else if (week == Constants.NEXT_WEEK) {
+            totalWeekUpTimeInSec = ((168 - sleepTime*7) * 3600)
         }
+        return totalWeekUpTimeInSec.toInt()
     }
 
-    fun getFreeTimeInWeek(startWeekDate: String): LiveData<Int> {
-        return dataStore.getFreeTimeInWeek(startWeekDate).asLiveData()
-    }
-
-    fun getChartValues(startDayWeek: String, freeTimeInWeek: Int): LiveData<List<ChartValue>> {
+    fun getChartValues(startDayWeek: String, totalWeekUpTimeInSec: Int): LiveData<List<ChartValue>> {
         val result = MutableLiveData<List<ChartValue>>()
-        var freeTimeInSec = freeTimeInWeek * 3600
+        var timeWeekUp = totalWeekUpTimeInSec
         val timeList = arrayListOf<ChartValue>()
         viewModelScope.launch {
             val list = categoryTargetRepository.getWeekCategoryTarget(startDayWeek)
             list.forEach {
-                freeTimeInSec -= it.totalTimeTargetInSec!!
+                timeWeekUp -= it.totalTimeTargetInSec!!
                 timeList.add(ChartValue(
                     value = it.totalTimeTargetInSec.toFloat(),
                     color = it.category.color!!
                 ))
             }
             timeList.add(0, ChartValue(
-                value = freeTimeInSec.toFloat(),
+                value = timeWeekUp.toFloat(),
                 color = Color.parseColor("#525050"))
             )
             result.postValue(timeList)

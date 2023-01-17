@@ -27,7 +27,7 @@ class CategoryTargetAdapter(private val mList: ArrayList<CategoryTarget>): Recyc
 
     fun addToFirst(categoryTarget: CategoryTarget) {
         mList.add(0,categoryTarget)
-        notifyItemChanged(0)
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

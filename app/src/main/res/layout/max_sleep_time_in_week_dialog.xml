@@ -33,57 +33,17 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTaskCategory" />
 
         <LinearLayout
-            android:id="@+id/llDedicatedTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="48dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:descendantFocusability="beforeDescendants"
-            android:focusableInTouchMode="true"
-            app:layout_constraintEnd_toStartOf="@+id/llSleepTime"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="1dp"
-                android:text="Dedicated time"
-                android:textColor="@color/white"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:gravity="center"
-                android:text="(weekly)"
-                android:textColor="@color/grayNormal"
-                android:textSize="12sp" />
-
-            <NumberPicker
-                android:id="@+id/npDedicatedTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:theme="@style/NumberPickerText"/>
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/llSleepTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="48dp"
-            android:gravity="center"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
+            android:gravity="center"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/llDedicatedTime"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view">
 
             <TextView
@@ -108,7 +68,7 @@
                 android:id="@+id/npAmountSleep"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:theme="@style/NumberPickerText"/>
+                android:theme="@style/NumberPickerText" />
         </LinearLayout>
 
         <View
@@ -117,7 +77,7 @@
             android:layout_height="1dp"
             android:layout_marginTop="48dp"
             android:background="#26242B"
-            app:layout_constraintTop_toBottomOf="@+id/llDedicatedTime" />
+            app:layout_constraintTop_toBottomOf="@+id/llSleepTime" />
 
         <LinearLayout
             android:layout_width="match_parent"

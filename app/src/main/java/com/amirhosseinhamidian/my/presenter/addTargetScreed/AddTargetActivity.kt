@@ -12,14 +12,12 @@ import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
-import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +31,7 @@ import com.amirhosseinhamidian.my.domain.model.ChartValue
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryTargetAdapter
 import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.DayOfWeek
 import com.amirhosseinhamidian.my.utils.hideKeyboard
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend
@@ -49,11 +48,10 @@ import com.ssarcseekbar.app.segmented.SegmentedArc
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add_target.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_category_target_time.view.*
-import kotlinx.android.synthetic.main.max_time_free_in_week_dialog.*
-import kotlinx.android.synthetic.main.new_category_dialog.*
+import kotlinx.android.synthetic.main.max_sleep_time_in_week_dialog.*
 import kotlinx.android.synthetic.main.new_category_dialog.tvClose
 import kotlinx.android.synthetic.main.new_category_dialog.tvConfirm
-import kotlin.math.roundToInt
+import java.util.Calendar
 
 @AndroidEntryPoint
 class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
@@ -61,9 +59,9 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
     private lateinit var categoryListAdapter: CategoryListAdapter
     private var weekStatus = Constants.CURRENT_WEEK
     private lateinit var categoryTargetAdapter: CategoryTargetAdapter
-    private var freeTime = 112
     private var sleepTime = 8f
-    private var totalTimeTargeted = 0
+    private var totalTimeTargetedInSec = 0
+    private var totalWeekUpTimeInSec = 0
     private var listDataChart = arrayListOf<ChartValue>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,10 +76,10 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
         viewModel.getSleepTimePerDay().observe(this) {
             sleepTime = it
+            setupWeekSpinner()
         }
 
         setWeekDateView(Constants.CURRENT_WEEK)
-        setupWeekSpinner()
         setupRecyclerView()
     }
 
@@ -102,20 +100,19 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                     0 -> setWeekDateView(Constants.CURRENT_WEEK)
                     1 -> setWeekDateView(Constants.NEXT_WEEK)
                 }
-                totalTimeTargeted = 0
+                totalTimeTargetedInSec = 0
                 viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus)).observe(this@AddTargetActivity) {
                     categoryTargetAdapter.add(it)
                     it.forEach {
-                        totalTimeTargeted += it.totalTimeTargetInSec?: 0
+                        totalTimeTargetedInSec += it.totalTimeTargetInSec?: 0
                     }
                 }
-                viewModel.getFreeTimeInWeek(viewModel.getStartDateWeek(weekStatus)).observe(this@AddTargetActivity) {
-                    freeTime = it
-                    viewModel.getChartValues(viewModel.getStartDateWeek(weekStatus),freeTime).observe(this@AddTargetActivity) { list ->
-                        listDataChart.addAll(list)
-                        setupChartView()
-                        setDataChart(list);
-                    }
+                totalWeekUpTimeInSec = viewModel.getTotalTimeLeftInWeek(sleepTime,weekStatus)
+                viewModel.getChartValues(viewModel.getStartDateWeek(weekStatus),totalWeekUpTimeInSec).observe(this@AddTargetActivity) { list ->
+                    listDataChart.clear()
+                    listDataChart.addAll(list)
+                    setupChartView()
+                    setDataChart(list);
                 }
             }
 
@@ -226,11 +223,11 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
         //endregion
 
-        val maxSecondTarget = (168 - sleepTime*7) * 3600 - totalTimeTargeted
-        val maxHour : Int = (maxSecondTarget / 3600).toInt()
-        val maxMin : Int = (maxSecondTarget / 60).toInt()
-
         //region select time
+
+        val maxSecondTarget = totalWeekUpTimeInSec - totalTimeTargetedInSec
+        val maxHour : Int = maxSecondTarget / 3600
+        val maxMin : Int = maxSecondTarget / 60
 
         //region hour
         view.saHour.setMin(0)
@@ -246,27 +243,27 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         //region minute
         var minute = 0
         if (maxMin >= 55){
-            view.saMinute.setMax(12)
+            view.saMinute.setMax(11)
         } else {
-            view.saMinute.setMax(maxMin/5 + 1)
+            view.saMinute.setMax(maxMin/5)
         }
-        view.saMinute.setMin(1)
+        view.saMinute.setMin(0)
         view.saMinute.setSegmentedProgress(0)
         view.saMinute.setOnProgressChangedListener(object : SegmentedArc.onProgressChangedListener {
             override fun onProgressChanged(progress: Int) {
                 when(progress) {
-                    1 -> minute = 0
-                    2 -> minute = 5
-                    3 -> minute = 10
-                    4 -> minute = 15
-                    5 -> minute = 20
-                    6 -> minute = 25
-                    7 -> minute = 30
-                    8 -> minute = 35
-                    9 -> minute = 40
-                    10 -> minute = 45
-                    11 -> minute = 50
-                    12 -> minute = 55
+                    0 -> minute = 0
+                    1 -> minute = 5
+                    2 -> minute = 10
+                    3 -> minute = 15
+                    4 -> minute = 20
+                    5 -> minute = 25
+                    6 -> minute = 30
+                    7 -> minute = 35
+                    8 -> minute = 40
+                    9 -> minute = 45
+                    10 -> minute = 50
+                    11 -> minute = 55
                 }
                 view.tvMinute.text = "%02d".format(minute)
             }
@@ -279,12 +276,12 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
             if (categoryListAdapter.getCategorySelected().name.isNotEmpty()) {
                 val hourTarget = view.saHour.getSegmentedProgress()
                 val minuteTarget = view.saMinute.getSegmentedProgress() * 5
-                val totalTimeTargetInSec = hourTarget * 3600 + minuteTarget * 60
+                val timeTargetedInSec = hourTarget * 3600 + minuteTarget * 60
                 val newCategoryTarget = CategoryTarget(
                     category = categoryListAdapter.getCategorySelected(),
                     hourTarget = hourTarget,
                     minuteTarget = minuteTarget,
-                    totalTimeTargetInSec = totalTimeTargetInSec,
+                    totalTimeTargetInSec = timeTargetedInSec,
                     weekNumber = viewModel.getNumberWeek(weekStatus),
                     startDateTarget = viewModel.getStartDateWeek(weekStatus),
                     endDateTarget = viewModel.getEndDateWeek(weekStatus),
@@ -293,11 +290,14 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                 viewModel.saveCategoryTarget(newCategoryTarget).observe(this) {
                     if (it>=0) {
                         newCategoryTarget.id = it
-                        totalTimeTargeted += newCategoryTarget.totalTimeTargetInSec ?:0
+                        totalTimeTargetedInSec += newCategoryTarget.totalTimeTargetInSec ?:0
                         categoryTargetAdapter.addToFirst(newCategoryTarget)
-                        val chartData = ChartValue(newCategoryTarget.totalTimeTargetInSec!!.toFloat() , newCategoryTarget.category.color!!)
-                        listDataChart.add(chartData)
-                        setDataChart(listDataChart)
+
+                        viewModel.getChartValues(viewModel.getStartDateWeek(weekStatus),totalWeekUpTimeInSec).observe(this@AddTargetActivity) { list ->
+                            listDataChart.clear()
+                            listDataChart.addAll(list)
+                            setDataChart(list);
+                        }
                     }
                 }
                 bottomSheet.dismiss()
@@ -355,12 +355,12 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
     }
 
-    private fun showEditMaxTimeFreeInWeekDialog() {
+    private fun showEditMaxSleepTimeInWeekDialog() {
         val dialog = Dialog(this, androidx.appcompat.R.style.Theme_AppCompat_Dialog)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.setCancelable(false)
-        dialog.setContentView(R.layout.max_time_free_in_week_dialog)
+        dialog.setContentView(R.layout.max_sleep_time_in_week_dialog)
 
         //region sleep time
         val sleepTimesList = arrayOf("5.0","5.5","6.0","6.5","7.0","7.5","8.0","8.5","9.0","9.5","10.0","10.5","11.0")
@@ -368,39 +368,16 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         dialog.npAmountSleep.minValue = 0
         dialog.npAmountSleep.displayedValues = sleepTimesList
         dialog.npAmountSleep.value = sleepTimesList.indexOf(sleepTime.toString())
-        dialog.npAmountSleep.setOnValueChangedListener { numberPicker, before, after ->
-            val totalWeeklyTimes = sleepTimesList[after].toFloat() * 7 + dialog.npDedicatedTime.value
-            if (totalWeeklyTimes > 168) {
-                dialog.npDedicatedTime.value = (168 - sleepTimesList[after].toFloat() * 7).toInt()
-            }
-        }
-        //endregion
 
-        //region dedicated time
-        dialog.npDedicatedTime.maxValue = 133
-        dialog.npDedicatedTime.minValue = 91
-        dialog.npDedicatedTime.value = freeTime
-        dialog.npDedicatedTime.setOnValueChangedListener { numberPicker, before, after ->
-            val totalWeeklyTimes = after + sleepTimesList[dialog.npAmountSleep.value].toFloat()*7
-            if (totalWeeklyTimes > 168) {
-                dialog.npAmountSleep.value -= 1
-            }
-        }
         //endregion
 
         dialog.tvClose.setOnClickListener{dialog.dismiss()}
         dialog.tvConfirm.setOnClickListener {
-            val totalWeeklyTime = dialog.npDedicatedTime.value + sleepTimesList[dialog.npAmountSleep.value].toFloat()*7
-            if(totalWeeklyTime > 168) {
-                Toast.makeText(this,"The maximum number of hours per week is 168. Please check your time.", Toast.LENGTH_LONG).show()
-            }else {
-                freeTime = dialog.npDedicatedTime.value
-                sleepTime = sleepTimesList[dialog.npAmountSleep.value].toFloat()
-                viewModel.saveFreeTimeInWeek(viewModel.getStartDateWeek(weekStatus),freeTime)
-                viewModel.saveAmountSleepTimePerDay(sleepTime)
-                pieChartView.centerText = generateCenterSpannableText()
-                dialog.dismiss()
-            }
+            sleepTime = sleepTimesList[dialog.npAmountSleep.value].toFloat()
+            totalWeekUpTimeInSec = viewModel.getTotalTimeLeftInWeek(sleepTime,weekStatus)
+            viewModel.saveAmountSleepTimePerDay(sleepTime)
+            pieChartView.centerText = generateCenterSpannableText()
+            dialog.dismiss()
         }
         dialog.show()
     }
@@ -442,18 +419,18 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
     }
 
     private fun generateCenterSpannableText(): SpannableString {
-        val s = SpannableString("${freeTime} Hour\nWake up time this week \n\n Tab to change")
-        s.setSpan(RelativeSizeSpan(1.8f), 0, freeTime.toString().length + 5, 0)
-        s.setSpan(ForegroundColorSpan(Color.WHITE), 0, freeTime.toString().length + 5 , 0)
-        s.setSpan(StyleSpan(Typeface.BOLD), 0, freeTime.toString().length + 5, 0)
-        s.setSpan(ForegroundColorSpan(ContextCompat.getColor(this,R.color.grayNormal)), freeTime.toString().length + 5, s.length, 0)
-        s.setSpan(RelativeSizeSpan(.8f), freeTime.toString().length + 5, s.length, 0)
-        s.setSpan(StyleSpan(Typeface.NORMAL), freeTime.toString().length + 5, s.length, 0)
+        val s = SpannableString("${sleepTime.toInt()*7} Hour\nSleep time this week \n Tab to change")
+        s.setSpan(RelativeSizeSpan(1.9f), 0, sleepTime.toInt().toString().length + 6, 0)
+        s.setSpan(ForegroundColorSpan(Color.WHITE), 0, sleepTime.toInt().toString().length + 6 , 0)
+        s.setSpan(StyleSpan(Typeface.BOLD), 0, sleepTime.toInt().toString().length + 6, 0)
+        s.setSpan(ForegroundColorSpan(ContextCompat.getColor(this,R.color.grayNormal)), sleepTime.toInt().toString().length + 6, s.length, 0)
+        s.setSpan(RelativeSizeSpan(0.9f), sleepTime.toInt().toString().length + 6, s.length, 0)
+        s.setSpan(StyleSpan(Typeface.NORMAL), sleepTime.toInt().toString().length + 6, s.length, 0)
         return s
     }
 
     override fun onValueSelected(e: Entry?, h: Highlight?) {
-        showEditMaxTimeFreeInWeekDialog()
+        showEditMaxSleepTimeInWeekDialog()
     }
 
     override fun onNothingSelected() {

@@ -42,18 +42,6 @@ class DataStoreImpl(private val context: Context): MyDataStore {
         it.contains(intPreferencesKey(dateAsKey))
     }
 
-    override suspend fun saveFreeTimeInWeek(startWeekDate: String, hourFree: Int) {
-        val dataStoreKey = intPreferencesKey(startWeekDate)
-        context.datastore.edit {
-            it[dataStoreKey] = hourFree
-        }
-    }
-
-    override fun getFreeTimeInWeek(startWeekDate: String): Flow<Int> = context.datastore.data
-        .map {
-            it[intPreferencesKey(startWeekDate)]?:112
-        }
-
     override suspend fun saveAmountSleepTimePerDay(sleepTime: Float) {
         context.datastore.edit {
             it[SLEEP_TIME_KEY] = sleepTime
