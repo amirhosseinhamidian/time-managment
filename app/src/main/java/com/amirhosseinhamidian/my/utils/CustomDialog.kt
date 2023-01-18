@@ -18,7 +18,7 @@ class CustomDialog(context: Context) {
     private var message: String? = null
     private val builder: AlertDialog.Builder
     private lateinit var alertDialog: AlertDialog
-    private var posetiveButtonText: String? = null
+    private var positiveButtonText: String? = null
     private var negativeButtonText: String? = null
     private lateinit var posOnClick: (View) -> Unit
     private lateinit var negOnClick: (View) -> Unit
@@ -43,7 +43,7 @@ class CustomDialog(context: Context) {
         positiveButtonText: String?,
         onClick: (View) -> Unit
     ) {
-        posetiveButtonText = positiveButtonText
+        this.positiveButtonText = positiveButtonText
         posOnClick = onClick
     }
 
@@ -66,8 +66,8 @@ class CustomDialog(context: Context) {
         if (positiveButtonColor != -1) tvPosButton.setTextColor(positiveButtonColor)
         if (title != null) tvTitle.text = title
         if (message != null) tvMessage.text = message
-        if (posetiveButtonText != null) {
-            tvPosButton.text = posetiveButtonText
+        if (positiveButtonText != null) {
+            tvPosButton.text = positiveButtonText
             tvPosButton.setOnClickListener {
                 posOnClick(it)
             }

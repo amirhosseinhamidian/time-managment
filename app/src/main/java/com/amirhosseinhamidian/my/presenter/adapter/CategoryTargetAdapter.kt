@@ -14,10 +14,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.amirhosseinhamidian.my.R
+import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 
 
 class CategoryTargetAdapter(private val mList: ArrayList<CategoryTarget>): RecyclerView.Adapter<CategoryTargetAdapter.ViewHolder>() {
+
+    var onItemClick: ((CategoryTarget) -> Unit)? = null
 
     fun add(listData: List<CategoryTarget>) {
         mList.clear()
@@ -51,9 +54,35 @@ class CategoryTargetAdapter(private val mList: ArrayList<CategoryTarget>): Recyc
         return mList.size
     }
 
+    fun remove(categoryTarget: CategoryTarget) {
+        mList.remove(categoryTarget)
+        notifyDataSetChanged()
+    }
+
+    fun updateCategoryTarget(updateCategoryTarget: CategoryTarget) {
+        mList.forEach {
+            if (it.id == updateCategoryTarget.id) {
+                mList[mList.indexOf(it)] = updateCategoryTarget
+                return@forEach
+            }
+        }
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
         val tvTimeTarget: TextView = itemView.findViewById(R.id.tvTimeTarget)
         val vColor: View = itemView.findViewById(R.id.vColor)
+
+        init {
+            try {
+                itemView.setOnClickListener {
+                    onItemClick?.invoke(mList[adapterPosition])
+                }
+            }catch (e: java.lang.Exception) {
+                e.printStackTrace()
+            }
+
+        }
     }
 }

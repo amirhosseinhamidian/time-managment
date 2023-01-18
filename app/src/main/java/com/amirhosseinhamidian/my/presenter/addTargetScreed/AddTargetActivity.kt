@@ -31,7 +31,7 @@ import com.amirhosseinhamidian.my.domain.model.ChartValue
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryTargetAdapter
 import com.amirhosseinhamidian.my.utils.Constants
-import com.amirhosseinhamidian.my.utils.DayOfWeek
+import com.amirhosseinhamidian.my.utils.CustomDialog
 import com.amirhosseinhamidian.my.utils.hideKeyboard
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.components.Legend
@@ -51,7 +51,7 @@ import kotlinx.android.synthetic.main.bottom_sheet_add_category_target_time.view
 import kotlinx.android.synthetic.main.max_sleep_time_in_week_dialog.*
 import kotlinx.android.synthetic.main.new_category_dialog.tvClose
 import kotlinx.android.synthetic.main.new_category_dialog.tvConfirm
-import java.util.Calendar
+import kotlinx.android.synthetic.main.option_category_dialog.*
 
 @AndroidEntryPoint
 class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
@@ -71,7 +71,7 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
             onBackPressed()
         }
         fabAddCategory.setOnClickListener {
-            showAddCategoryTargetTimeBottomSheet()
+            showAddCategoryTargetTimeBottomSheet(null)
         }
 
         viewModel.getSleepTimePerDay().observe(this) {
@@ -87,6 +87,42 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         rvCategory.layoutManager = GridLayoutManager(this,2)
         categoryTargetAdapter = CategoryTargetAdapter(arrayListOf())
         rvCategory.adapter = categoryTargetAdapter
+        categoryTargetAdapter.onItemClick = { categoryTarget ->
+            showOptionDialog(categoryTarget)
+        }
+    }
+
+    private fun showOptionDialog(categoryTarget: CategoryTarget) {
+        val dialog = Dialog(this, androidx.appcompat.R.style.Theme_AppCompat_Dialog)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.option_category_dialog)
+        dialog.tvClose.setOnClickListener{dialog.dismiss()}
+        dialog.llEdit.setOnClickListener {
+            showAddCategoryTargetTimeBottomSheet(categoryTarget)
+            dialog.dismiss()
+        }
+
+        dialog.llDelete.setOnClickListener {
+            val customDialog = CustomDialog(this)
+            customDialog.setCancelable(false)
+            customDialog.setTitle("Delete")
+            customDialog.setMessage("Are you sure to delete this category target? \n It's clear forever")
+            customDialog.setPositiveButton("Yes") {
+                categoryTargetAdapter.remove(categoryTarget)
+                viewModel.deleteCategoryTarget(categoryTarget)
+                listDataChart.remove(ChartValue(categoryTarget.totalTimeTargetInSec!!.toFloat(),categoryTarget.category.color!!))
+                setDataChart(listDataChart)
+                customDialog.dismiss()
+            }
+            customDialog.setNegativeButton("Cancel") {
+                customDialog.dismiss()
+            }
+            customDialog.show()
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
     private fun setupWeekSpinner() {
@@ -129,97 +165,115 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         weekStatus = week
     }
 
-    private fun showAddCategoryTargetTimeBottomSheet() {
+    private fun showAddCategoryTargetTimeBottomSheet(editCategoryTarget: CategoryTarget?) {
         val bottomSheet = BottomSheetDialog(this, R.style.DialogStyle)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_add_category_target_time, null)
 
         //region select category
+        if (editCategoryTarget == null) {
+            //region setup suggestion recyclerview
+            view.rvSuggestion.layoutManager =
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+            categoryListAdapter = CategoryListAdapter(this, arrayListOf())
+            view.rvSuggestion.adapter = categoryListAdapter
 
-        //region setup suggestion recyclerview
-        view.rvSuggestion.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
-        categoryListAdapter = CategoryListAdapter(this, arrayListOf())
-        view.rvSuggestion.adapter = categoryListAdapter
-
-        viewModel.getCategoryList().observe(this) { categoryList ->
-            if (categoryList.isNotEmpty()) {
-                viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus)).observe(this) { categoryTargetList ->
-                    view.rvSuggestion.visibility = View.VISIBLE
-                    categoryListAdapter.add(categoryList)
-                    categoryListAdapter.onItemClick = { categorySelected ->
-                        view.edtCategory.setText(categorySelected.name)
-                        view.colorSlider.selectColor(categorySelected.color!!)
-                        view.colorSlider.isEnabled = false
-                    }
-                    categoryListAdapter.addDisableCategories(categoryTargetList)
-                }
-            }
-        }
-        //endregion
-
-        //region edit text category name
-        view.edtCategory.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun afterTextChanged(text: Editable?) {
-                view.pbAddCategory.visibility = View.VISIBLE
-                view.ivCategoryAdded.visibility = View.INVISIBLE
-                view.ivAddCategory.visibility = View.INVISIBLE
-                viewModel.isThereCategory(text.toString()).observe(this@AddTargetActivity) {
-                    view.pbAddCategory.visibility = View.INVISIBLE
-                    if (it) {
-                        view.ivCategoryAdded.visibility = View.VISIBLE
-                        view.colorSlider.isEnabled = false
-                        categoryListAdapter.resetSelectedCategory()
-                        val category = categoryListAdapter.selectCategory(text.toString())
-                        if (category != null) {
-                            view.colorSlider.selectColor(category.color!!)
+            viewModel.getCategoryList().observe(this) { categoryList ->
+                if (categoryList.isNotEmpty()) {
+                    viewModel.getTargetsWeek(viewModel.getStartDateWeek(weekStatus))
+                        .observe(this) { categoryTargetList ->
+                            view.rvSuggestion.visibility = View.VISIBLE
+                            categoryListAdapter.add(categoryList)
+                            categoryListAdapter.onItemClick = { categorySelected ->
+                                view.edtCategory.setText(categorySelected.name)
+                                view.colorSlider.selectColor(categorySelected.color!!)
+                                view.colorSlider.isEnabled = false
+                            }
+                            categoryListAdapter.addDisableCategories(categoryTargetList)
                         }
-                    } else {
-                        view.ivAddCategory.visibility = View.VISIBLE
-                        view.colorSlider.isEnabled = true
-                        categoryListAdapter.resetSelectedCategory()
-                        categoryListAdapter.notifyDataSetChanged()
-                    }
                 }
             }
-        })
-        //endregion
 
-        //region add new category
-        view.ivAddCategory.setOnClickListener {
-            hideKeyboard(view.ivAddCategory)
-            if (view.edtCategory.text.isNotEmpty()) {
-                view.pbAddCategory.visibility = View.VISIBLE
-                view.ivAddCategory.visibility = View.INVISIBLE
-                view.ivCategoryAdded.visibility = View.INVISIBLE
-                viewModel.addNewCategory(view.edtCategory.text.toString(),view.colorSlider.selectedColor).observe(this) {
-                    if (it >=0) {
-                        view.saHour.requestFocus()
-                        view.tvErrorCategory.visibility = View.INVISIBLE
+            //endregion
+
+            //region edit text category name
+            view.edtCategory.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun afterTextChanged(text: Editable?) {
+                    view.pbAddCategory.visibility = View.VISIBLE
+                    view.ivCategoryAdded.visibility = View.INVISIBLE
+                    view.ivAddCategory.visibility = View.INVISIBLE
+                    viewModel.isThereCategory(text.toString()).observe(this@AddTargetActivity) {
                         view.pbAddCategory.visibility = View.INVISIBLE
-                        view.tvErrorCategory.visibility = View.INVISIBLE
-                        view.ivCategoryAdded.visibility = View.VISIBLE
-                        view.colorSlider.isEnabled = false
-                        val category = Category(id = it , name = view.edtCategory.text.toString(), color = view.colorSlider.selectedColor)
-                        categoryListAdapter.addToFirst(category)
-                        categoryListAdapter.selectCategory(category.name)
-                    } else {
-                        view.tvErrorCategory.text = "Error saving new category, please choose another name."
-                        view.tvErrorCategory.visibility = View.VISIBLE
+                        if (it) {
+                            view.ivCategoryAdded.visibility = View.VISIBLE
+                            view.colorSlider.isEnabled = false
+                            categoryListAdapter.resetSelectedCategory()
+                            val category = categoryListAdapter.selectCategory(text.toString())
+                            if (category != null) {
+                                view.colorSlider.selectColor(category.color!!)
+                            }
+                        } else {
+                            view.ivAddCategory.visibility = View.VISIBLE
+                            view.colorSlider.isEnabled = true
+                            categoryListAdapter.resetSelectedCategory()
+                            categoryListAdapter.notifyDataSetChanged()
+                        }
                     }
                 }
-            } else {
-                view.tvErrorCategory.text = "Please type new category title."
-                view.tvErrorCategory.visibility = View.VISIBLE
+            })
+            //endregion
+
+            //region add new category
+            view.ivAddCategory.setOnClickListener {
+                hideKeyboard(view.ivAddCategory)
+                if (view.edtCategory.text.isNotEmpty()) {
+                    view.pbAddCategory.visibility = View.VISIBLE
+                    view.ivAddCategory.visibility = View.INVISIBLE
+                    view.ivCategoryAdded.visibility = View.INVISIBLE
+                    viewModel.addNewCategory(
+                        view.edtCategory.text.toString(),
+                        view.colorSlider.selectedColor
+                    ).observe(this) {
+                        if (it >= 0) {
+                            view.saHour.requestFocus()
+                            view.tvErrorCategory.visibility = View.INVISIBLE
+                            view.pbAddCategory.visibility = View.INVISIBLE
+                            view.tvErrorCategory.visibility = View.INVISIBLE
+                            view.ivCategoryAdded.visibility = View.VISIBLE
+                            view.colorSlider.isEnabled = false
+                            val category = Category(
+                                id = it,
+                                name = view.edtCategory.text.toString(),
+                                color = view.colorSlider.selectedColor
+                            )
+                            categoryListAdapter.addToFirst(category)
+                            categoryListAdapter.selectCategory(category.name)
+                        } else {
+                            view.tvErrorCategory.text =
+                                "Error saving new category, please choose another name."
+                            view.tvErrorCategory.visibility = View.VISIBLE
+                        }
+                    }
+                } else {
+                    view.tvErrorCategory.text = "Please type new category title."
+                    view.tvErrorCategory.visibility = View.VISIBLE
+                }
             }
+            //endregion
+
+        } else {
+            view.btSave.text = "Update"
+            view.tvTitle.text = editCategoryTarget.category.name
+            view.rlHolderAddCategory.visibility = View.GONE
+            view.rlSelectCategory.visibility = View.GONE
         }
-        //endregion
 
         //endregion
 
@@ -231,8 +285,13 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
         //region hour
         view.saHour.setMin(0)
-        view.saHour.setMax(maxHour)
-        view.saHour.setSegmentedProgress(0)
+        if (editCategoryTarget == null) {
+            view.saHour.setMax(maxHour)
+            view.saHour.setSegmentedProgress(0)
+        } else {
+            view.saHour.setMax(maxHour + editCategoryTarget.hourTarget)
+            view.saHour.setSegmentedProgress(editCategoryTarget.hourTarget)
+        }
         view.saHour.setOnProgressChangedListener(object : SegmentedArc.onProgressChangedListener {
             override fun onProgressChanged(progress: Int) {
                 view.tvHour.text = "%02d".format(progress)
@@ -242,13 +301,19 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
 
         //region minute
         var minute = 0
-        if (maxMin >= 55){
-            view.saMinute.setMax(11)
-        } else {
-            view.saMinute.setMax(maxMin/5)
-        }
         view.saMinute.setMin(0)
-        view.saMinute.setSegmentedProgress(0)
+        if (editCategoryTarget == null) {
+            if (maxMin >= 55){
+                view.saMinute.setMax(11)
+            } else {
+                view.saMinute.setMax(maxMin/5)
+            }
+            view.saMinute.setSegmentedProgress(0)
+        } else {
+            view.saMinute.setMax(11)
+            view.saMinute.setSegmentedProgress(editCategoryTarget.minuteTarget / 5)
+        }
+
         view.saMinute.setOnProgressChangedListener(object : SegmentedArc.onProgressChangedListener {
             override fun onProgressChanged(progress: Int) {
                 when(progress) {
@@ -273,7 +338,8 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         //endregion
 
         view.btSave.setOnClickListener {
-            if (categoryListAdapter.getCategorySelected().name.isNotEmpty()) {
+            //region add new
+            if (editCategoryTarget == null && categoryListAdapter.getCategorySelected().name.isNotEmpty()) {
                 val hourTarget = view.saHour.getSegmentedProgress()
                 val minuteTarget = view.saMinute.getSegmentedProgress() * 5
                 val timeTargetedInSec = hourTarget * 3600 + minuteTarget * 60
@@ -301,7 +367,40 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
                     }
                 }
                 bottomSheet.dismiss()
-            } else {
+            }
+            //endregion
+
+            //region update
+            else if (editCategoryTarget != null) {
+                val hourTarget = view.saHour.getSegmentedProgress()
+                val minuteTarget = view.saMinute.getSegmentedProgress() * 5
+                val timeTargetedInSec = hourTarget * 3600 + minuteTarget * 60
+                val updateCategoryTarget = CategoryTarget(
+                    id = editCategoryTarget.id,
+                    category = editCategoryTarget.category,
+                    hourTarget = hourTarget,
+                    minuteTarget = minuteTarget,
+                    totalTimeTargetInSec = timeTargetedInSec,
+                    weekNumber = viewModel.getNumberWeek(weekStatus),
+                    startDateTarget = viewModel.getStartDateWeek(weekStatus),
+                    endDateTarget = viewModel.getEndDateWeek(weekStatus),
+                    createAt = System.currentTimeMillis()
+                )
+                viewModel.updateCategoryTarget(updateCategoryTarget).observe(this) {
+                    totalTimeTargetedInSec -= editCategoryTarget.totalTimeTargetInSec ?: 0
+                    totalTimeTargetedInSec += updateCategoryTarget.totalTimeTargetInSec ?:0
+                    categoryTargetAdapter.updateCategoryTarget(updateCategoryTarget)
+
+                    viewModel.getChartValues(viewModel.getStartDateWeek(weekStatus),totalWeekUpTimeInSec).observe(this@AddTargetActivity) { list ->
+                        listDataChart.clear()
+                        listDataChart.addAll(list)
+                        setDataChart(list);
+                    }
+                }
+                bottomSheet.dismiss()
+            }
+            //endregion
+            else {
                 Toast.makeText(this,"Please select a category.",Toast.LENGTH_SHORT).show()
             }
         }

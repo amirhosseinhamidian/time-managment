@@ -15,7 +15,7 @@ interface CategoryTargetDao {
     suspend fun insert(categoryTargetEntity: CategoryTargetEntity): Long
 
     @Update
-    suspend fun update(categoryTargetEntity: CategoryTargetEntity)
+    suspend fun update(categoryTargetEntity: CategoryTargetEntity): Int
 
     @Delete
     suspend fun delete(categoryTargetEntity: CategoryTargetEntity)

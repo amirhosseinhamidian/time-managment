@@ -33,12 +33,12 @@ class CategoryManagerAdapter(private val mList: ArrayList<Category>): RecyclerVi
 
         holder.tvCategory.text = category.name
         holder.tvNumTasks.text = "Tasks: ${category.numberTasks}"
-//        val background: Drawable = holder.vColor.background
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            background.colorFilter = BlendModeColorFilter(category.color!!, BlendMode.SRC_ATOP)
-//        } else {
-//            holder.vColor.background.setColorFilter(category.color!!, PorterDuff.Mode.SRC_ATOP)
-//        }
+        val background: Drawable = holder.vColor.background
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            background.colorFilter = BlendModeColorFilter(category.color!!, BlendMode.SRC_ATOP)
+        } else {
+            holder.vColor.background.setColorFilter(category.color!!, PorterDuff.Mode.SRC_ATOP)
+        }
     }
 
     override fun getItemCount(): Int {

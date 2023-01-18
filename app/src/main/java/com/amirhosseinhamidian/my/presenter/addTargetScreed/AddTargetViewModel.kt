@@ -153,4 +153,17 @@ class AddTargetViewModel @Inject constructor(
         return dataStore.getSleepTimePerDay().asLiveData()
     }
 
+    fun deleteCategoryTarget(categoryTarget: CategoryTarget) {
+        viewModelScope.launch {
+            categoryTargetRepository.deleteCategoryTarget(categoryTarget)
+        }
+    }
+
+    fun updateCategoryTarget(updateCategoryTarget: CategoryTarget): LiveData<Int>{
+        val result = MutableLiveData<Int>()
+        viewModelScope.launch {
+           result.postValue(categoryTargetRepository.updateCategoryTarget(updateCategoryTarget))
+        }
+        return result
+    }
 }
