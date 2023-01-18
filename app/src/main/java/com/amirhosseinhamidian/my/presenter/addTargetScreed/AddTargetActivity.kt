@@ -52,6 +52,9 @@ import kotlinx.android.synthetic.main.max_sleep_time_in_week_dialog.*
 import kotlinx.android.synthetic.main.new_category_dialog.tvClose
 import kotlinx.android.synthetic.main.new_category_dialog.tvConfirm
 import kotlinx.android.synthetic.main.option_category_dialog.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
@@ -70,6 +73,9 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
         ivBack.setOnClickListener {
             onBackPressed()
         }
+
+        tvDate.text = viewModel.getTodayDate()
+
         fabAddCategory.setOnClickListener {
             showAddCategoryTargetTimeBottomSheet(null)
         }

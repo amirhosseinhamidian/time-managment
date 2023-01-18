@@ -166,4 +166,10 @@ class AddTargetViewModel @Inject constructor(
         }
         return result
     }
+
+    fun getTodayDate() : String {
+        val c: Date = Calendar.getInstance().time
+        val df = SimpleDateFormat("dd MMM, EEE", Locale.getDefault())
+        return df.format(c)
+    }
 }
