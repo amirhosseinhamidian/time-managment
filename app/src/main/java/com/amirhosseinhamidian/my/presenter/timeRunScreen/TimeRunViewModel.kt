@@ -8,9 +8,9 @@ import com.amirhosseinhamidian.my.domain.repository.TaskRepository
 import com.amirhosseinhamidian.my.utils.Constants
 import com.amirhosseinhamidian.my.utils.Date
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -88,4 +88,11 @@ class TimeRunViewModel @Inject constructor(
     fun isMidnightKeyStored(): LiveData<Boolean> {
         return myDataStore.isMidnightKeyStored(Date.getYesterdayDate()).asLiveData()
     }
+
+    fun getCurrentNumberWeekOfYear(): String {
+        val cal = Calendar.getInstance()
+        cal.firstDayOfWeek = Calendar.SATURDAY
+        return "${cal.get(Calendar.WEEK_OF_YEAR)} , ${cal.get(Calendar.YEAR)}"
+    }
+
 }

@@ -114,4 +114,13 @@ class TaskRepositoryImpl @Inject  constructor(
     override suspend fun getNumberTasksInCategory(categoryName: String): Int {
         return dao.getNumberTasksInCategory(categoryName)
     }
+
+    override suspend fun updateCategoryNameInDailyDetails(categoryName: String, taskId: Long) {
+        return dao.updateCategoryNameDailyDetails(categoryName,taskId)
+    }
+
+    override suspend fun getWeeklyDetail(numberOfWeek: String): List<DailyDetails> {
+        return dao.getWeeklyDetail(numberOfWeek).map { it.toDailyDetails() }
+    }
+
 }

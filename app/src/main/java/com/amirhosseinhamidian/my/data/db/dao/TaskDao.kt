@@ -1,15 +1,10 @@
 package com.amirhosseinhamidian.my.data.db.dao
 
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.Query
-import androidx.room.Update
 import com.amirhosseinhamidian.my.data.db.entity.DailyDetailsEntity
 import com.amirhosseinhamidian.my.data.db.entity.TaskEntity
-import com.amirhosseinhamidian.my.domain.model.DailyDetails
 
 @Dao
 interface TaskDao {
@@ -64,5 +59,11 @@ interface TaskDao {
 
     @Query("SELECT time FROM daily_details_table WHERE date=:date AND taskId=:taskId")
     suspend fun getDayTaskTime(date: String, taskId: Long): Int
+
+    @Query("UPDATE daily_details_table SET categoryName=:categoryName WHERE taskId=:taskId")
+    suspend fun updateCategoryNameDailyDetails(categoryName: String, taskId: Long)
+
+    @Query("SELECT * FROM daily_details_table WHERE weekNumberOfYear=:numberOfWeek")
+    suspend fun getWeeklyDetail(numberOfWeek: String): List<DailyDetailsEntity>
     //endregion
 }

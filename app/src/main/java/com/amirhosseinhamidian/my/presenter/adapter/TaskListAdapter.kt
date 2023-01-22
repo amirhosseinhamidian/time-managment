@@ -13,6 +13,7 @@ import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.presenter.timeRunScreen.TimeRunActivity
 import com.amirhosseinhamidian.my.utils.Constants
+import com.amirhosseinhamidian.my.utils.Date.calculateTimeInHourMinuteFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -89,11 +90,6 @@ class TaskListAdapter(private val context: Context , private val mList: ArrayLis
         return mList.size
     }
 
-    private fun calculateTimeInHourMinuteFormat(timeInSec: Int): String {
-        val hour = timeInSec/3600
-        val minute = timeInSec/60%60
-        return "${hour}h : ${minute}m"
-    }
 
     override fun getItemViewType(position: Int): Int {
         if (showHeader && position == 0) return VIEW_TYPE_HEADER

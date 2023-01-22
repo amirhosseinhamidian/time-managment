@@ -115,6 +115,8 @@ class TimeRunActivity : AppCompatActivity() {
                                     viewModel.insertDetail(
                                         details = DailyDetails(
                                             taskId = task.id!!,
+                                            categoryName = task.category,
+                                            weekNumberOfYear = viewModel.getCurrentNumberWeekOfYear(),
                                             date = Date.getCurrentDate(),
                                             time = timerSec - timeBeforeMidnight
                                         )
@@ -124,6 +126,8 @@ class TimeRunActivity : AppCompatActivity() {
                                 viewModel.insertDetail(
                                     details = DailyDetails(
                                         taskId = task.id!!,
+                                        categoryName = task.category,
+                                        weekNumberOfYear = viewModel.getCurrentNumberWeekOfYear(),
                                         date = Date.getCurrentDate(),
                                         time = timerSec
                                     )

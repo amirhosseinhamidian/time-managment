@@ -15,6 +15,14 @@ class HomeViewModel@Inject constructor(
     private val taskRepository: TaskRepository,
 ): ViewModel() {
 
+    fun updateCategoryNameInDailyDetails() {
+        viewModelScope.launch {
+            taskRepository.getAllTsk().forEach {
+                taskRepository.updateCategoryNameInDailyDetails(it.category,it.id!!)
+            }
+        }
+    }
+
     fun getAllTask(): LiveData<List<Task>> {
         val result = MutableLiveData<List<Task>>()
         viewModelScope.launch {

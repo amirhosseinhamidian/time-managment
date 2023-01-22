@@ -10,6 +10,8 @@ fun DailyDetailsEntity.toDailyDetails(): DailyDetails {
     return DailyDetails(
         id = id,
         taskId = taskId,
+        categoryName = categoryName,
+        weekNumberOfYear = weekNumberOfYear,
         date = date,
         time = time,
     )
@@ -19,6 +21,8 @@ fun DailyDetails.toDailyDetailsEntity(): DailyDetailsEntity {
     return DailyDetailsEntity(
         id = id,
         taskId = taskId,
+        categoryName = categoryName,
+        weekNumberOfYear = weekNumberOfYear,
         date = date,
         time = time,
     )

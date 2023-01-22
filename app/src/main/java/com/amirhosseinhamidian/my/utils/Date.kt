@@ -20,4 +20,11 @@ object Date {
         calendar.add(Calendar.DATE, -1)
         return dateFormat.format(calendar.time)
     }
+
+    fun calculateTimeInHourMinuteFormat(timeInSec: Int): String {
+        val hour = timeInSec/3600
+        val minute = timeInSec/60%60
+        return "${hour}h : ${minute}m"
+    }
+
 }

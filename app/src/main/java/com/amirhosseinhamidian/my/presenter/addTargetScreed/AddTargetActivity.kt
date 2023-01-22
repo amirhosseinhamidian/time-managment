@@ -167,7 +167,7 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
     @SuppressLint("SetTextI18n")
     private fun setWeekDateView(week: Int) {
         tvDatePeriod.text = viewModel.getStartDateWeek(week) + " - " + viewModel.getEndDateWeek(week)
-        tvNumWeek.text = "Week" + viewModel.getNumberWeek(week)
+        tvNumWeek.text = "Week " + viewModel.getNumberWeek(week)
         weekStatus = week
     }
 

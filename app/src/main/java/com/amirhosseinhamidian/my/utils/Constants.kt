@@ -35,6 +35,10 @@ object Constants {
 
     const val CURRENT_WEEK = 1
     const val NEXT_WEEK = 2
+    const val LAST_WEEK = 3
+    const val LAST_TWO_WEEK = 4
+    const val LAST_THREE_WEEK = 5
+
 
     const val FIRST_DAY_SATURDAY = 1
     const val FIRST_DAY_SUNDAY = 2

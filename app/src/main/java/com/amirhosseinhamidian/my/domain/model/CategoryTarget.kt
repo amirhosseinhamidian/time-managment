@@ -11,5 +11,6 @@ data class CategoryTarget(
     val startDateTarget: String,
     val endDateTarget: String,
     val weekNumber: Int,
-    val createAt: Long? = null
+    val createAt: Long? = null,
+    var weeklyGrade:Int? = null
 ): Serializable
