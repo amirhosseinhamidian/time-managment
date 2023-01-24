@@ -65,5 +65,8 @@ interface TaskDao {
 
     @Query("SELECT * FROM daily_details_table WHERE weekNumberOfYear=:numberOfWeek")
     suspend fun getWeeklyDetail(numberOfWeek: String): List<DailyDetailsEntity>
+
+    @Query("SELECT SUM(time) FROM daily_details_table WHERE weekNumberOfYear=:weekNumberOfYear AND taskId=:taskId")
+    suspend fun getTotalTaskTimeWeekly(weekNumberOfYear: String , taskId: Long): Int
     //endregion
 }

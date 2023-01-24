@@ -22,5 +22,6 @@ interface TaskRepository {
     suspend fun getDayTaskTime(date: String, taskId: Long): Int
     suspend fun getNumberTasksInCategory(categoryName: String): Int
     suspend fun updateCategoryNameInDailyDetails(categoryName: String, taskId: Long)
-    suspend fun getWeeklyDetail(numberOfWeek: String):List<DailyDetails>
+    suspend fun getWeeklyDetail(numberOfWeek: String): List<DailyDetails>
+    suspend fun getTotalTaskTimeWeekly(numberOfWeek: String, taskId: Long): Int
 }

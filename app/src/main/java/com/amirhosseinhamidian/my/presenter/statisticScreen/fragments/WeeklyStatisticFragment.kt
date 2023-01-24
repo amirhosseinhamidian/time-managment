@@ -2,17 +2,19 @@ package com.amirhosseinhamidian.my.presenter.statisticScreen.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
+import com.amirhosseinhamidian.my.presenter.adapter.TaskStatisticsAdapter
 import com.amirhosseinhamidian.my.presenter.statisticScreen.StatisticViewModel
 import com.amirhosseinhamidian.my.utils.Constants
 import com.amirhosseinhamidian.my.utils.Date
@@ -23,12 +25,14 @@ import kotlinx.android.synthetic.main.activity_add_target.tvDatePeriod
 import kotlinx.android.synthetic.main.activity_add_target.tvNumWeek
 import kotlinx.android.synthetic.main.fragment_weekly_statistic.*
 
+
 @AndroidEntryPoint
 class WeeklyStatisticFragment : Fragment() {
 
     private val viewModel: StatisticViewModel by viewModels()
     private var weekStatus = Constants.CURRENT_WEEK
     private lateinit var categoryListAdapter: CategoryListAdapter
+    private lateinit var taskStatisticAdapter: TaskStatisticsAdapter
     private var totalSec = 0
 
     override fun onCreateView(
@@ -43,7 +47,19 @@ class WeeklyStatisticFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupWeekSpinner()
         setupRecyclerviewCategorySelect()
+        setupRecyclerviewTaskStatistics()
+        viewModel.getTaskStatisticWeekly(weekStatus).observe(requireActivity()) {
+            taskStatisticAdapter.add(it)
+        }
 
+    }
+
+    private fun setupRecyclerviewTaskStatistics() {
+        (recyclerview.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        recyclerview.layoutManager = LinearLayoutManager(requireContext())
+        taskStatisticAdapter = TaskStatisticsAdapter(requireContext(), arrayListOf())
+        recyclerview.adapter = taskStatisticAdapter
+        recyclerview.setHasFixedSize(true)
     }
 
     private fun setupRecyclerviewCategorySelect() {
@@ -76,7 +92,7 @@ class WeeklyStatisticFragment : Fragment() {
                     setupInfoBoxes(dailyDetails)
                     viewModel.getTargetWeekly(weekStatus).observe(requireActivity()) { categoryTargetList ->
                         if(categoryTargetList.isNotEmpty()) {
-                            viewModel.getGradeWeekly(categoryTargetList,weekStatus).observe(requireActivity()) { grade ->
+                            viewModel.getCategoryGradeWeekly(categoryTargetList,weekStatus).observe(requireActivity()) { grade ->
                                 setupGradeBoxes(grade/categoryTargetList.size)
                             }
                             setupTotalTargetTimeBoxes(viewModel.getTotalTargetTime(categoryTargetList))
@@ -124,11 +140,12 @@ class WeeklyStatisticFragment : Fragment() {
         tvTotalTargetTime.text = Date.calculateTimeInHourMinuteFormat(totalTime)
     }
 
-
     @SuppressLint("SetTextI18n")
     private fun setWeekDateView(week: Int) {
         tvDatePeriod.text = viewModel.getStartDateWeek(week) + " - " + viewModel.getEndDateWeek(week)
         tvNumWeek.text = "Week " + viewModel.getNumberWeek(week)
         weekStatus = week
     }
+
+
 }

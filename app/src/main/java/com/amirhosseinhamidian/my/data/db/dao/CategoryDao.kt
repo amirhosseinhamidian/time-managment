@@ -22,6 +22,9 @@ interface CategoryDao {
     @Query("SELECT * FROM category_table WHERE id=:id")
     suspend fun getCategoryById(id:Long): CategoryEntity
 
+    @Query("SELECT * FROM category_table WHERE name=:name")
+    suspend fun getCategoryByName(name: String): CategoryEntity
+
     @Query("SELECT EXISTS (SELECT * FROM category_table WHERE name=:name)")
     suspend fun isThereCategory(name: String) : Boolean
 }

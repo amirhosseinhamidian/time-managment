@@ -46,7 +46,7 @@ class CategoryTargetAdapter(private val mList: ArrayList<CategoryTarget>): Recyc
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             background.colorFilter = BlendModeColorFilter(categoryTarget.category.color!!, BlendMode.SRC_ATOP)
         } else {
-            holder.vColor.background.setColorFilter(categoryTarget.category.color!!, PorterDuff.Mode.SRC_ATOP)
+            background.setColorFilter(categoryTarget.category.color!!, PorterDuff.Mode.SRC_ATOP)
         }
     }
 

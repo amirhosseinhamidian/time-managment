@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
+import com.amirhosseinhamidian.my.domain.model.TaskStatisticWeekly
 import com.amirhosseinhamidian.my.domain.repository.CategoryRepository
 import com.amirhosseinhamidian.my.domain.repository.CategoryTargetRepository
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository
@@ -18,6 +19,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 @HiltViewModel
 class StatisticViewModel @Inject constructor(
@@ -103,7 +105,7 @@ class StatisticViewModel @Inject constructor(
         return result
     }
 
-    fun getGradeWeekly(categoryTargetList: List<CategoryTarget> ,weekStatus: Int): LiveData<Double> {
+    fun getCategoryGradeWeekly(categoryTargetList: List<CategoryTarget>, weekStatus: Int): LiveData<Double> {
         val result = MutableLiveData<Double>()
         var grade = 0.0
         viewModelScope.launch {
@@ -137,5 +139,45 @@ class StatisticViewModel @Inject constructor(
             totalTime += it.totalTimeTargetInSec!!
         }
         return totalTime
+    }
+
+    fun getTaskStatisticWeekly(week:Int): LiveData<List<TaskStatisticWeekly>> {
+        val result = MutableLiveData<List<TaskStatisticWeekly>>()
+        viewModelScope.launch {
+            val dailyDetailsListOfWeek = taskRepository.getWeeklyDetail(getNumberWeekOfYear(week)).sortedBy { it.taskId }
+            val taskStatisticWeeklyList = arrayListOf<TaskStatisticWeekly>()
+            var taskIdCheck = 0L
+            dailyDetailsListOfWeek.forEach {
+                if (taskIdCheck != it.taskId) {
+                    taskIdCheck = it.taskId
+                    val task = taskRepository.getTaskById(taskIdCheck)
+                    val category = categoryRepository.getCategoryByName(task.category)
+                    val totalTaskTimeWeekly = taskRepository.getTotalTaskTimeWeekly(getNumberWeekOfYear(week),taskIdCheck)
+                    val taskStatisticWeekly = TaskStatisticWeekly(
+                        taskId = taskIdCheck,
+                        taskTitle = task.title,
+                        category = category,
+                        totalTimeWeekly = totalTaskTimeWeekly,
+                        dailyDetailsList = getDetailsTaskWeekly(dailyDetailsListOfWeek,taskIdCheck)
+                    )
+                    taskStatisticWeeklyList.add(taskStatisticWeekly)
+                }
+            }
+            result.postValue(taskStatisticWeeklyList)
+        }
+        return result
+    }
+
+    private fun getDetailsTaskWeekly(
+        dailyDetailsListOfWeek: List<DailyDetails>,
+        taskIdCheck: Long
+    ): ArrayList<DailyDetails> {
+        val result = arrayListOf<DailyDetails>()
+        dailyDetailsListOfWeek.forEach {
+            if (taskIdCheck == it.taskId) {
+                result.add(it)
+            }
+        }
+        return result
     }
 }

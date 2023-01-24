@@ -27,4 +27,10 @@ object Date {
         return "${hour}h : ${minute}m"
     }
 
+    fun calculateTimeInHourMinuteSecondFormat(timeInSec: Int): String {
+        val hour = timeInSec/3600
+        val minute = timeInSec/60%60
+        val second = timeInSec -  (hour * 3600 + minute*60)
+        return "${hour}h : ${minute}m : ${second}s"
+    }
 }

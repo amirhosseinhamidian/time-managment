@@ -8,5 +8,6 @@ interface CategoryRepository {
     suspend fun deleteCategory(category: Category)
     suspend fun getAllCategory(): List<Category>
     suspend fun getCategoryById(id: Long): Category
+    suspend fun getCategoryByName(name: String): Category
     suspend fun isThereCategory(name: String): Boolean
 }

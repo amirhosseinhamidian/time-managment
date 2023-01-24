@@ -6,5 +6,5 @@ data class DailyDetails(
     val categoryName: String? = null,
     val weekNumberOfYear: String? = null,
     val date: String,
-    val time: Int
+    val time: Int,
 )

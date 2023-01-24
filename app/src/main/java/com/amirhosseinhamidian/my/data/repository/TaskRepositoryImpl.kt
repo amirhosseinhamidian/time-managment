@@ -123,4 +123,8 @@ class TaskRepositoryImpl @Inject  constructor(
         return dao.getWeeklyDetail(numberOfWeek).map { it.toDailyDetails() }
     }
 
+    override suspend fun getTotalTaskTimeWeekly(numberOfWeek: String, taskId: Long): Int {
+        return dao.getTotalTaskTimeWeekly(numberOfWeek,taskId)
+    }
+
 }
