@@ -14,6 +14,7 @@ interface TaskRepository {
     suspend fun getRunningTaskIdIfExists(): Long
     suspend fun insertDailyDetails(dailyDetails: DailyDetails)
     suspend fun updateDailyDetails(taskId: Long, time: Int, date: String)
+    suspend fun getAllDailyDetails(): List<DailyDetails>
     suspend fun checkDailyDetailIsExist(taskId: Long, dayStatus: Int): Int
     suspend fun isDailyDateIsExist(taskId: Long, date: String): Boolean
     suspend fun getDailyDetailsById(taskId: Long , fewLastDay: Int): List<DailyDetails>
@@ -22,6 +23,7 @@ interface TaskRepository {
     suspend fun getDayTaskTime(date: String, taskId: Long): Int
     suspend fun getNumberTasksInCategory(categoryName: String): Int
     suspend fun updateCategoryNameInDailyDetails(categoryName: String, taskId: Long)
-    suspend fun getWeeklyDetail(numberOfWeek: String): List<DailyDetails>
+    suspend fun getWeeklyDetail(numberOfWeek: String, categorySelected: String): List<DailyDetails>
     suspend fun getTotalTaskTimeWeekly(numberOfWeek: String, taskId: Long): Int
+    suspend fun updateWeekNumber(weekNumberOfYear: String, id:Long)
 }

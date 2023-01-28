@@ -1,9 +1,12 @@
 package com.amirhosseinhamidian.my.presenter.statisticScreen
 
+import android.content.Context
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
@@ -75,10 +78,10 @@ class StatisticViewModel @Inject constructor(
         return result
     }
 
-    fun getDetailsWeekly(week: Int): LiveData<List<DailyDetails>> {
+    fun getDetailsWeekly(categorySelected: String,week: Int): LiveData<List<DailyDetails>> {
         val result = MutableLiveData<List<DailyDetails>>()
         viewModelScope.launch {
-            result.postValue(taskRepository.getWeeklyDetail(getNumberWeekOfYear(week)))
+            result.postValue(taskRepository.getWeeklyDetail(getNumberWeekOfYear(week),categorySelected))
         }
         return result
     }
@@ -105,13 +108,14 @@ class StatisticViewModel @Inject constructor(
         return result
     }
 
-    fun getCategoryGradeWeekly(categoryTargetList: List<CategoryTarget>, weekStatus: Int): LiveData<Double> {
+    fun getCategoryGradeWeekly(categoryTargetList: List<CategoryTarget>, weekStatus: Int, categorySelected: String): LiveData<Double> {
         val result = MutableLiveData<Double>()
         var grade = 0.0
         viewModelScope.launch {
-            val dailyDetailsList = taskRepository.getWeeklyDetail(getNumberWeekOfYear(weekStatus))
+            val dailyDetailsList = taskRepository.getWeeklyDetail(getNumberWeekOfYear(weekStatus),categorySelected)
 
             for(categoryTarget in categoryTargetList) {
+                if (categorySelected != Category.getAllCategoryItem().name && categorySelected != categoryTarget.category.name) continue
                 var totalWeeklyTimeInSec = 0
                 dailyDetailsList.forEach { dailyDetails ->
                     if (dailyDetails.categoryName == categoryTarget.category.name) {
@@ -127,24 +131,31 @@ class StatisticViewModel @Inject constructor(
                     (totalWeeklyTimeInSec / categoryTargetTimeInSec).toDouble()
                 }
             }
+            if (categorySelected == Category.getAllCategoryItem().name){
+                grade /= categoryTargetList.size
+            }
             grade *= 100
             result.postValue(grade)
         }
         return result
     }
 
-    fun getTotalTargetTime(categoryTargetList: List<CategoryTarget> ): Int {
+    fun getTotalTargetTime(categoryTargetList: List<CategoryTarget> , categorySelected: String ): Int {
         var totalTime = 0
         categoryTargetList.forEach {
-            totalTime += it.totalTimeTargetInSec!!
+            if(categorySelected == Category.getAllCategoryItem().name) {
+                totalTime += it.totalTimeTargetInSec!!
+            } else if (categorySelected == it.category.name) {
+                totalTime += it.totalTimeTargetInSec!!
+            }
         }
         return totalTime
     }
 
-    fun getTaskStatisticWeekly(week:Int): LiveData<List<TaskStatisticWeekly>> {
+    fun getTaskStatisticWeekly(week:Int,categorySelected: String): LiveData<List<TaskStatisticWeekly>> {
         val result = MutableLiveData<List<TaskStatisticWeekly>>()
         viewModelScope.launch {
-            val dailyDetailsListOfWeek = taskRepository.getWeeklyDetail(getNumberWeekOfYear(week)).sortedBy { it.taskId }
+            val dailyDetailsListOfWeek = taskRepository.getWeeklyDetail(getNumberWeekOfYear(week),categorySelected).sortedBy { it.taskId }
             val taskStatisticWeeklyList = arrayListOf<TaskStatisticWeekly>()
             var taskIdCheck = 0L
             dailyDetailsListOfWeek.forEach {
@@ -179,5 +190,27 @@ class StatisticViewModel @Inject constructor(
             }
         }
         return result
+    }
+
+    fun getTodayDate() : String {
+        val c: Date = Calendar.getInstance().time
+        val df = SimpleDateFormat("dd MMM, EE", Locale.getDefault())
+        return df.format(c)
+    }
+
+    fun getGradeTextColor(context: Context, grade: Double): Int {
+        var color = 0
+        if(grade <= 20) {
+            color = ContextCompat.getColor(context, R.color.red)
+        } else if (grade > 20 && grade <= 40) {
+            color = ContextCompat.getColor(context, R.color.orange)
+        } else if (grade > 40 && grade <= 60) {
+            color = ContextCompat.getColor(context, R.color.yellow)
+        } else if (grade > 60 && grade <= 80) {
+            color = ContextCompat.getColor(context, R.color.lightGreen)
+        } else if (grade > 80) {
+            color = ContextCompat.getColor(context, R.color.green)
+        }
+        return color
     }
 }

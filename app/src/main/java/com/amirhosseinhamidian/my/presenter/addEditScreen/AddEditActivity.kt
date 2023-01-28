@@ -92,7 +92,7 @@ class AddEditActivity: AppCompatActivity() {
 
 
     private fun setupRecyclerview() {
-        categoryListAdapter = CategoryListAdapter(this, arrayListOf())
+        categoryListAdapter = CategoryListAdapter(this, arrayListOf(),false)
         rvCategory.layoutManager = GridLayoutManager(this,2, GridLayoutManager.HORIZONTAL,false)
         rvCategory.adapter = categoryListAdapter
     }

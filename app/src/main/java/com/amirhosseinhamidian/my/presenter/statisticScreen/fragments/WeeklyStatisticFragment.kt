@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.amirhosseinhamidian.my.R
+import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.presenter.adapter.CategoryListAdapter
 import com.amirhosseinhamidian.my.presenter.adapter.TaskStatisticsAdapter
@@ -34,6 +35,8 @@ class WeeklyStatisticFragment : Fragment() {
     private lateinit var categoryListAdapter: CategoryListAdapter
     private lateinit var taskStatisticAdapter: TaskStatisticsAdapter
     private var totalSec = 0
+    private var categorySelected = Category.getAllCategoryItem()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,12 +48,10 @@ class WeeklyStatisticFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        tvDate.text = viewModel.getTodayDate()
         setupWeekSpinner()
         setupRecyclerviewCategorySelect()
         setupRecyclerviewTaskStatistics()
-        viewModel.getTaskStatisticWeekly(weekStatus).observe(requireActivity()) {
-            taskStatisticAdapter.add(it)
-        }
 
     }
 
@@ -64,12 +65,15 @@ class WeeklyStatisticFragment : Fragment() {
 
     private fun setupRecyclerviewCategorySelect() {
         rvCategory.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
-        categoryListAdapter = CategoryListAdapter(requireContext(), arrayListOf())
+        categoryListAdapter = CategoryListAdapter(requireContext(), arrayListOf(),true)
         rvCategory.adapter = categoryListAdapter
         viewModel.getCategoryList().observe(requireActivity()) { categoryList ->
             categoryListAdapter.add(categoryList)
+            categoryListAdapter.selectCategory(categorySelected.name)
             categoryListAdapter.onItemClick = {
-
+                categorySelected = it
+                getBoxesData()
+                getDetailTasksData()
             }
         }
     }
@@ -88,23 +92,34 @@ class WeeklyStatisticFragment : Fragment() {
                     3 -> setWeekDateView(Constants.LAST_THREE_WEEK)
                 }
 
-                viewModel.getDetailsWeekly(weekStatus).observe(requireActivity()) { dailyDetails ->
-                    setupInfoBoxes(dailyDetails)
-                    viewModel.getTargetWeekly(weekStatus).observe(requireActivity()) { categoryTargetList ->
-                        if(categoryTargetList.isNotEmpty()) {
-                            viewModel.getCategoryGradeWeekly(categoryTargetList,weekStatus).observe(requireActivity()) { grade ->
-                                setupGradeBoxes(grade/categoryTargetList.size)
-                            }
-                            setupTotalTargetTimeBoxes(viewModel.getTotalTargetTime(categoryTargetList))
-                        } else {
-                            llTargetBoxes.visibility = View.GONE
-                        }
-                    }
-                }
+                getBoxesData()
+                getDetailTasksData()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
+            }
+        }
+    }
+
+    private fun getDetailTasksData() {
+        viewModel.getTaskStatisticWeekly(weekStatus,categorySelected.name).observe(requireActivity()) {
+            taskStatisticAdapter.add(it)
+        }
+    }
+
+    private fun getBoxesData() {
+        viewModel.getDetailsWeekly(categorySelected.name,weekStatus).observe(requireActivity()) { dailyDetails ->
+            setupInfoBoxes(dailyDetails)
+            viewModel.getTargetWeekly(weekStatus).observe(requireActivity()) { categoryTargetList ->
+                if(categoryTargetList.isNotEmpty()) {
+                    viewModel.getCategoryGradeWeekly(categoryTargetList,weekStatus, categorySelected.name).observe(requireActivity()) { grade ->
+                        setupGradeBoxes(grade)
+                    }
+                    setupTotalTargetTimeBoxes(viewModel.getTotalTargetTime(categoryTargetList,categorySelected.name))
+                } else {
+                    llTargetBoxes.visibility = View.GONE
+                }
             }
         }
     }
@@ -132,6 +147,7 @@ class WeeklyStatisticFragment : Fragment() {
 
     private fun setupGradeBoxes(grade: Double) {
         llTargetBoxes.visibility = View.VISIBLE
+        tvGrade.setTextColor(viewModel.getGradeTextColor(requireContext(),grade))
         tvGrade.text = String.format("%.1f",grade)+"%"
 
     }

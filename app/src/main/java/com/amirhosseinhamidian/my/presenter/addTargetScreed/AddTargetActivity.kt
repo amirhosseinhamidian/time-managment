@@ -180,7 +180,7 @@ class AddTargetActivity : AppCompatActivity(), OnChartValueSelectedListener {
             //region setup suggestion recyclerview
             view.rvSuggestion.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-            categoryListAdapter = CategoryListAdapter(this, arrayListOf())
+            categoryListAdapter = CategoryListAdapter(this, arrayListOf(),false)
             view.rvSuggestion.adapter = categoryListAdapter
 
             viewModel.getCategoryList().observe(this) { categoryList ->

@@ -5,6 +5,7 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import com.amirhosseinhamidian.my.data.db.entity.DailyDetailsEntity
 import com.amirhosseinhamidian.my.data.db.entity.TaskEntity
+import com.amirhosseinhamidian.my.domain.model.DailyDetails
 
 @Dao
 interface TaskDao {
@@ -45,6 +46,9 @@ interface TaskDao {
     @Query("UPDATE daily_details_table SET time=:time WHERE taskId=:taskId AND date=:date")
     suspend fun updateDailyDetails(taskId: Long, time: Int, date: String)
 
+    @Query("SELECT * FROM daily_details_table")
+    suspend fun getAllDailyDetails(): List<DailyDetailsEntity>
+
     @Query("SELECT time FROM daily_details_table WHERE date=:date AND taskId=:taskId")
     suspend fun checkDailyDetailIsExist(date: String , taskId: Long): Int
 
@@ -68,5 +72,11 @@ interface TaskDao {
 
     @Query("SELECT SUM(time) FROM daily_details_table WHERE weekNumberOfYear=:weekNumberOfYear AND taskId=:taskId")
     suspend fun getTotalTaskTimeWeekly(weekNumberOfYear: String , taskId: Long): Int
+
+    @Query("UPDATE daily_details_table SET weekNumberOfYear=:weekNumberOfYear WHERE id=:id")
+    suspend fun updateWeekNumber(weekNumberOfYear: String, id: Long)
+
+    @Query("SELECT * FROM daily_details_table WHERE weekNumberOfYear=:numberOfWeek AND categoryName=:categorySelected")
+    suspend fun getWeeklyDetailByCategory(numberOfWeek: String, categorySelected: String): List<DailyDetailsEntity>
     //endregion
 }

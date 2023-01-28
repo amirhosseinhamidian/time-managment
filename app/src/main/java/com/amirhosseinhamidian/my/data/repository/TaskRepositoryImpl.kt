@@ -1,20 +1,17 @@
 package com.amirhosseinhamidian.my.data.repository
 
 
-import android.annotation.SuppressLint
-import android.util.Log
 import com.amirhosseinhamidian.my.data.db.DB
 import com.amirhosseinhamidian.my.data.mapper.toDailyDetails
 import com.amirhosseinhamidian.my.data.mapper.toDailyDetailsEntity
 import com.amirhosseinhamidian.my.data.mapper.toTask
 import com.amirhosseinhamidian.my.data.mapper.toTaskEntity
+import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.DailyDetails
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository
 import com.amirhosseinhamidian.my.utils.Constants
 import com.amirhosseinhamidian.my.utils.Date
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject  constructor(
@@ -63,6 +60,10 @@ class TaskRepositoryImpl @Inject  constructor(
 
     override suspend fun updateDailyDetails(taskId: Long, time: Int, date: String) {
         return dao.updateDailyDetails(taskId, time, date)
+    }
+
+    override suspend fun getAllDailyDetails(): List<DailyDetails> {
+        return dao.getAllDailyDetails().map { it.toDailyDetails() }
     }
 
     override suspend fun checkDailyDetailIsExist(taskId: Long, dayStatus: Int): Int {
@@ -119,12 +120,19 @@ class TaskRepositoryImpl @Inject  constructor(
         return dao.updateCategoryNameDailyDetails(categoryName,taskId)
     }
 
-    override suspend fun getWeeklyDetail(numberOfWeek: String): List<DailyDetails> {
-        return dao.getWeeklyDetail(numberOfWeek).map { it.toDailyDetails() }
+    override suspend fun getWeeklyDetail(numberOfWeek: String, categorySelected: String): List<DailyDetails> {
+         if (categorySelected == Category.getAllCategoryItem().name) {
+           return dao.getWeeklyDetail(numberOfWeek).map { it.toDailyDetails() }
+        }
+        return dao.getWeeklyDetailByCategory(numberOfWeek, categorySelected).map { it.toDailyDetails() }
     }
 
     override suspend fun getTotalTaskTimeWeekly(numberOfWeek: String, taskId: Long): Int {
         return dao.getTotalTaskTimeWeekly(numberOfWeek,taskId)
+    }
+
+    override suspend fun updateWeekNumber(weekNumberOfYear: String, id: Long) {
+        return dao.updateWeekNumber(weekNumberOfYear , id)
     }
 
 }

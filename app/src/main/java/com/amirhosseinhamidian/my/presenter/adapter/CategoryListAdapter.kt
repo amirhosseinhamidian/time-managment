@@ -12,13 +12,16 @@ import com.amirhosseinhamidian.my.R
 import com.amirhosseinhamidian.my.domain.model.Category
 import com.amirhosseinhamidian.my.domain.model.CategoryTarget
 
-class CategoryListAdapter(private val context: Context ,private val mList: ArrayList<Category>): RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
+class CategoryListAdapter(private val context: Context ,private val mList: ArrayList<Category>,private val isShowAllCategoryItem: Boolean): RecyclerView.Adapter<CategoryListAdapter.ViewHolder>() {
 
     private var categoryDisableList: List<CategoryTarget> = emptyList()
     var onItemClick: ((Category) -> Unit)? = null
 
     fun add(listData: List<Category>) {
         mList.clear()
+        if (isShowAllCategoryItem) {
+            mList.add(Category.getAllCategoryItem())
+        }
         mList.addAll(listData)
         notifyDataSetChanged()
     }

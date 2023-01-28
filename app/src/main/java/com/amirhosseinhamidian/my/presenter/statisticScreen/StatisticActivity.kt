@@ -30,6 +30,7 @@ class StatisticActivity : AppCompatActivity() {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = adapter.getTabTitle(position)
         }.attach()
+        viewPager.isUserInputEnabled = false
 
     }
 }

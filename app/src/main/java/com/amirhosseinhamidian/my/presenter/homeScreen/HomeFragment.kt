@@ -35,7 +35,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerview()
-        viewModel.updateCategoryNameInDailyDetails()
     }
 
     override fun onResume() {

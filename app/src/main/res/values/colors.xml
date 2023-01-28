@@ -12,9 +12,12 @@
     <color name="grayDark">#515151</color>
     <color name="background">#041124</color>
     <color name="backgroundDialog">#061832</color>
-    <color name="green">#2E7D32</color>
+    <color name="green">#006107</color>
     <color name="red">#C62828</color>
     <color name="blue">#1565C0</color>
+    <color name="yellow">#DF8535</color>
+    <color name="orange">#EB4917</color>
+    <color name="lightGreen">#689F38</color>
     <color name="transparent">#00000000</color>
     <color name="transparentWhite">#14FFFFFF</color>
 </resources>

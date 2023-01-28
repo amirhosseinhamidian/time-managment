@@ -1,13 +1,16 @@
 package com.amirhosseinhamidian.my.presenter.homeScreen
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amirhosseinhamidian.my.domain.model.Task
 import com.amirhosseinhamidian.my.domain.repository.TaskRepository
+import com.amirhosseinhamidian.my.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,13 +18,7 @@ class HomeViewModel@Inject constructor(
     private val taskRepository: TaskRepository,
 ): ViewModel() {
 
-    fun updateCategoryNameInDailyDetails() {
-        viewModelScope.launch {
-            taskRepository.getAllTsk().forEach {
-                taskRepository.updateCategoryNameInDailyDetails(it.category,it.id!!)
-            }
-        }
-    }
+    private val calendar = Calendar.getInstance()
 
     fun getAllTask(): LiveData<List<Task>> {
         val result = MutableLiveData<List<Task>>()

@@ -49,7 +49,7 @@ class TaskStatisticsAdapter(private val context: Context, private val mList: Arr
             if (taskStatisticWeekly.dailyDetailsList.isEmpty()) return@setOnClickListener
             taskStatisticWeekly.isExpanded = !taskStatisticWeekly.isExpanded
             setupDailyDetailLayout(taskStatisticWeekly.dailyDetailsList,holder.llDetailHolder)
-            notifyDataSetChanged()
+            notifyItemChanged(position)
         }
     }
 
