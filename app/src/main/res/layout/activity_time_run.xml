@@ -149,6 +149,43 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.638" />
 
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTimer">
+
+            <TextView
+                android:id="@+id/tvMinusFive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_stroke_gray_normal"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:layout_marginEnd="8dp"
+                android:text="-5 min"
+                android:textColor="@color/grayNormal"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tvPlusFive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_stroke_gray_normal"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:layout_marginStart="8dp"
+                android:text="+5 min"
+                android:textColor="@color/grayNormal"
+                android:textSize="14sp"/>
+
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/llButtons"
             android:layout_width="match_parent"

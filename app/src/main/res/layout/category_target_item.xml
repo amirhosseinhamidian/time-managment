@@ -11,36 +11,29 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center">
 
+        <View
+            android:id="@+id/vColor"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginHorizontal="32dp"
+            android:background="@drawable/bg_solid_gray_dark" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center"
-            android:layout_marginEnd="8dp">
+            android:text="Android"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"
+            android:padding="8dp"
+            android:textColor="@color/white" />
 
-            <View
-                android:id="@+id/vColor"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="@drawable/circle_gray_dark"
-                android:layout_gravity="center_vertical"/>
-
-            <TextView
-                android:id="@+id/tvCategory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Android"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:layout_margin="1dp"
-                android:padding="16dp"
-                android:textColor="@color/white" />
-
-        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -52,7 +45,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="14h 30m"
-            android:layout_gravity="center"
             android:textColor="@color/white"
             android:padding="16dp"
             android:textSize="18sp"

@@ -128,7 +128,7 @@ class StatisticViewModel @Inject constructor(
                     (totalWeeklyTimeInSec / numberDay).toDouble() / (categoryTargetTimeInSec / 7).toDouble()
 
                 } else {
-                    (totalWeeklyTimeInSec / categoryTargetTimeInSec).toDouble()
+                    totalWeeklyTimeInSec.toDouble() / categoryTargetTimeInSec.toDouble()
                 }
             }
             if (categorySelected == Category.getAllCategoryItem().name){

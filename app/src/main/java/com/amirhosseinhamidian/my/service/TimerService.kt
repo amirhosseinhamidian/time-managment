@@ -40,7 +40,7 @@ class TimerService() : Service() {
     var timeFlow: MutableStateFlow<String> = MutableStateFlow("")
     private lateinit var notificationBuilder: Notification.Builder
     var timeSpent = 0L
-    private var elapsedMillis by Delegates.notNull<Long>()
+    var elapsedMillis by Delegates.notNull<Long>()
     lateinit var task: Task
     private val scope = CoroutineScope(Dispatchers.IO + job)
     @Inject lateinit var taskRepository: TaskRepository

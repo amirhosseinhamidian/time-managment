@@ -23,9 +23,6 @@ import com.amirhosseinhamidian.my.utils.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_time_run.*
-import kotlinx.android.synthetic.main.activity_time_run.ivBack
-import kotlinx.android.synthetic.main.activity_time_run.tvTaskCategory
-import kotlinx.android.synthetic.main.activity_time_run.tvTaskTitle
 import kotlinx.android.synthetic.main.bottom_sheet_desc_task.view.*
 import kotlinx.coroutines.launch
 
@@ -172,6 +169,30 @@ class TimeRunActivity : AppCompatActivity() {
                 customDialog.dismiss()
             }
             customDialog.show()
+        }
+
+        tvMinusFive.setOnClickListener {
+            val fiveMinuteMillis = 5*60*1000
+            if(this::timerService.isInitialized) {
+                if (timerService.elapsedMillis >= fiveMinuteMillis ) {
+                    timerService.elapsedMillis -= fiveMinuteMillis
+                }
+            }
+            if (timerSec > fiveMinuteMillis/1000) {
+                timerSec -= fiveMinuteMillis/1000
+                timeSpent -= fiveMinuteMillis/1000
+                tvTimer.text = Date.calculateTimeInHourMinuteSecondFormatSimple(timerSec)
+            }
+        }
+
+        tvPlusFive.setOnClickListener {
+            val fiveMinuteMillis = 5*60*1000
+            if (this::timerService.isInitialized) {
+                timerService.elapsedMillis += fiveMinuteMillis
+            }
+            timerSec += fiveMinuteMillis/1000
+            timeSpent += fiveMinuteMillis/1000
+            tvTimer.text = Date.calculateTimeInHourMinuteSecondFormatSimple(timerSec)
         }
     }
 
