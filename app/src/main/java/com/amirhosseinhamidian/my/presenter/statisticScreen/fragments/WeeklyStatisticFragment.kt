@@ -50,7 +50,6 @@ class WeeklyStatisticFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         tvDate.text = viewModel.getTodayDate()
         setupWeekSpinner()
-        setupRecyclerviewCategorySelect()
         setupRecyclerviewTaskStatistics()
 
     }
@@ -67,7 +66,7 @@ class WeeklyStatisticFragment : Fragment() {
         rvCategory.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
         categoryListAdapter = CategoryListAdapter(requireContext(), arrayListOf(),true)
         rvCategory.adapter = categoryListAdapter
-        viewModel.getCategoryList().observe(requireActivity()) { categoryList ->
+        viewModel.getCategoryList(weekStatus).observe(requireActivity()) { categoryList ->
             categoryListAdapter.add(categoryList)
             categoryListAdapter.selectCategory(categorySelected.name)
             categoryListAdapter.onItemClick = {
@@ -94,6 +93,7 @@ class WeeklyStatisticFragment : Fragment() {
 
                 getBoxesData()
                 getDetailTasksData()
+                setupRecyclerviewCategorySelect()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

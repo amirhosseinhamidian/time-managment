@@ -66,8 +66,6 @@ class TimerService() : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        startForegroundService()
-
         isBound = true
         chronometer = Chronometer(this)
         chronometer.base = SystemClock.elapsedRealtime()
@@ -75,6 +73,8 @@ class TimerService() : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        task = intent!!.getSerializableExtra("task") as Task
+        startForegroundService()
         CoroutineScope(job).launch(Dispatchers.IO) {
 
             // while isBound is true, means the service has a work to do because it is used in
@@ -185,7 +185,7 @@ class TimerService() : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationBuilder = Notification.Builder(this, channelId)
                 .setContentTitle("Task Timer")
-                .setContentTitle("0")
+                .setContentTitle(task.title)
                 .setSmallIcon(R.drawable.ic_timer)
                 .setContentIntent(pendingIntentMain)
                 .setAutoCancel(true)

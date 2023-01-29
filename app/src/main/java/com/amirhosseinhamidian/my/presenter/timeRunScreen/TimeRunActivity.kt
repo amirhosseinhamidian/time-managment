@@ -54,6 +54,7 @@ class TimeRunActivity : AppCompatActivity() {
             return
         }
         task = intent.getSerializableExtra("task") as Task
+        intentToService.putExtra("task",task)
         tvTaskTitle.text = task.title
         tvTaskCategory.text = task.category
         tvTimeSpent.text = String.format("%02d", (task.elapsedTime / (60 * 60)) % 24) +
@@ -273,7 +274,6 @@ class TimeRunActivity : AppCompatActivity() {
             val myBinder = service as TimerService.TimerBinder
             timerService = myBinder.service
             timerService.timeSpent = timeSpent * 1000L
-            timerService.task = task
             isBound.postValue(true)
         }
 

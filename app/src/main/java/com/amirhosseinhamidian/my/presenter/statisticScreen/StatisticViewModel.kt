@@ -90,10 +90,14 @@ class StatisticViewModel @Inject constructor(
         return "${getNumberWeek(week)} , ${calendar.get(Calendar.YEAR)}"
     }
 
-    fun getCategoryList(): LiveData<List<Category>> {
+    fun getCategoryList(week: Int): LiveData<List<Category>> {
         val result = MutableLiveData<List<Category>>()
         viewModelScope.launch {
-            val list = categoryRepository.getAllCategory()
+            val categoryTargetList = categoryTargetRepository.getWeekCategoryTarget(getStartDateWeek(week))
+            val list = arrayListOf<Category>()
+            categoryTargetList.forEach {
+                list.add(it.category)
+            }
             result.postValue(list)
         }
         return result
